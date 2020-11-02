@@ -66,19 +66,6 @@ public class MainController {
     public List<Room> userRooms(@AuthenticationPrincipal OAuth2User principal) {
         String email = principal.getAttribute("email");
         return databaseService.findRoomsByOwnerUser(email);
-//        if (optionalUser.isPresent()) {
-//            User user = optionalUser.get();
-//            System.out.println(email + "   " + user.getRooms().size());
-//
-////            Room room = new Room(UUID.randomUUID(), "testroom", user);
-////            databaseService.saveRoom(room);
-////
-////            user.getRooms().add(room);
-////            databaseService.saveUser(user);
-//
-//            return user.getRooms();
-//        }
-//        return null;
     }
 
     @RequestMapping("/createroom")

@@ -31,7 +31,7 @@ public class Room {
             inverseJoinColumns = @JoinColumn(name = "user_email", referencedColumnName = "id"))
     private Set<User> roomAccess;
 
-    @Lob
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     // region Constructors

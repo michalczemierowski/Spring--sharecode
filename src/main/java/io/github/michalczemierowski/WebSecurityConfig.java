@@ -12,7 +12,13 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        String[] safeUrls = { "/", "/sign-in", "/error", "/webjars/**" };
+        String[] safeUrls = {
+                "/",
+                "/sign-in",
+                "/error",
+                "/webjars/**"
+        };
+
         http
                 .authorizeRequests()
                     .antMatchers(safeUrls).permitAll()
