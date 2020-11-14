@@ -1,6 +1,6 @@
 package io.github.michalczemierowski.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -19,20 +19,20 @@ public class User {
     @NotBlank
     @Size(min = 5, max = 30)
     @Column(length = 30)
-    private String userName;
+    private String name;
 
-    @JsonIgnore
-    @ManyToMany(mappedBy = "roomAccess")
-    private Set<Room> rooms;
+    @JsonBackReference
+    @ManyToMany(mappedBy = "usersWithAccess")
+    private Set<Room> availableRooms;
 
     public User() {
     }
 
-    public User(String id, String userName) {
+    public User(String id, String name) {
         this.id = id;
-        this.userName = userName;
+        this.name = name;
 
-        rooms = new HashSet<>();
+        availableRooms = new HashSet<>();
     }
 
     /**
@@ -41,8 +41,8 @@ public class User {
      *
      * @return list of available rooms
      */
-    public Set<Room> getRooms() {
-        return rooms;
+    public Set<Room> getAvailableRooms() {
+        return availableRooms;
     }
 
     /**
@@ -52,8 +52,8 @@ public class User {
         return id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getName() {
+        return name;
     }
 
     /**
@@ -68,9 +68,9 @@ public class User {
     /**
      * Update user name
      *
-     * @param userName new user name
+     * @param name new user name
      */
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setName(String name) {
+        this.name = name;
     }
 }

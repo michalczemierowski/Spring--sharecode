@@ -1,0 +1,150 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+  <title>TEST</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
+  <link rel="stylesheet" type="text/css" href="/css/room-sidebar.css" />
+  <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</head>
+
+<body>
+  <div>
+    <!-- Use any element to open the sidenav -->
+    <span class="opensidenav" onclick="openNav()">open</span>
+
+    <div id="sidepanel" class="sidepanel">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <div>
+        <p class="msgusername">username</p>
+        <p class="msgcontent">content content ocntetn content</p>
+      </div>
+      <div>
+        <p class="msgusername">username</p>
+        <p class="msgcontent">content content ocntetn content</p>
+      </div>
+      <div>
+        <p class="msgusername">username</p>
+        <p class="msgcontent">content content ocntetn content</p>
+      </div>
+      <div>
+        <p class="msgusername">username</p>
+        <p class="msgcontent">content content ocntetn content</p>
+      </div>
+      <button onclick="saveContent()">SAVE CONTENT</button>
+    </div>
+
+    <script>
+      function openNav() {
+        document.getElementById("sidepanel").style.width = "320px";
+      }
+
+      /* Set the width of the side navigation to 0 */
+      function closeNav() {
+        document.getElementById("sidepanel").style.width = "0";
+      }
+
+      function saveContent() {
+        let path = "/api/v1/room/update/" + id + "/content";
+        $.post(path, { content: editor.getValue() },
+          function (data) {
+            console.log(data);
+          });
+      }
+    </script>
+
+    <pre id="content"></pre>
+
+    <script src="/js/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+    <script>
+      var editor = ace.edit("content");
+      editor.setTheme("ace/theme/twilight");
+      editor.session.setMode("ace/mode/javascript");
+
+      var hasContentChanged = false;
+      editor.on("change", function (e) {
+        hasContentChanged = true;
+      });
+
+      window.setInterval(function () {
+        if (hasContentChanged) {
+          hasContentChanged = false;
+          saveContent();
+        }
+      }, 1500);
+    </script>
+  </div>
+  <div>
+    <a class="btn btn-primary" href="/">Home</a>
+  </div>
+
+  <h2 th:text="'Hello, ' + ${id}" id="name"></h2>
+  <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+  <script>
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+        if (settings.type == 'POST' || settings.type == 'PUT'
+          || settings.type == 'DELETE') {
+          if (!(/^http:.*/.test(settings.url) || /^https:.*/
+            .test(settings.url))) {
+            // Only send the token to relative URLs i.e. locally.
+            xhr.setRequestHeader("X-XSRF-TOKEN", Cookies
+              .get('XSRF-TOKEN'));
+          }
+        }
+      }
+    });
+
+  </script>
+  <script>
+    var id = "[[${id}]]";
+    var path = "/api/v1/room/get/" + id;
+
+    $.get(path, function (data) {
+      if (data) {
+        var jsonData = eval(data);
+        $("#name").html(jsonData.name);
+        //var text = document.getElementById("content");
+        editor.setValue(jsonData.content);
+        //document.getElementById("content").innerHTML = jsonData.content;
+        //$("#content").textCon
+        // $("#content").innerHTML = jsonData.content;
+      }
+      else
+        $("#name").hide();
+    });
+
+    function initialize() {
+      const eventSource = new EventSource("/notifications/" + id);
+
+      // on update message received
+      eventSource.onmessage = e => {
+        if (e) {
+          editor.setValue(e.data);
+          // TODO: fix exception
+          //var roomDataJSON = eval(e.data);
+          //editor.setValue(roomDataJSON.content);
+        }
+      };
+
+      eventSource.onopen = e => console.log('open');
+      eventSource.onerror = e => {
+        if (e.readyState == EventSource.CLOSED) {
+          console.log('close');
+        }
+        else {
+          console.log(e);
+        }
+      };
+
+      eventSource.addEventListener('second', function (e) {
+        console.log('second', e.data);
+      }, false);
+    }
+    initialize();
+  </script>
+</body>
+
+</html>

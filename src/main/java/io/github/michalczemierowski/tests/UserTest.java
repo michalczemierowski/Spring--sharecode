@@ -15,13 +15,13 @@ public class UserTest {
         User testUser1 = new User("user1@test.com", initialName);
 
         // check initial name
-        assertEquals(testUser1.getUserName(), initialName);
+        assertEquals(testUser1.getName(), initialName);
 
         // update name
-        testUser1.setUserName(newName);
+        testUser1.setName(newName);
 
         // check updated name
-        assertEquals(testUser1.getUserName(), newName);
+        assertEquals(testUser1.getName(), newName);
     }
 
     @Test

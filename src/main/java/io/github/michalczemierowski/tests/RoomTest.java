@@ -19,15 +19,15 @@ public class RoomTest {
         Room room = new Room(testUUID, "testRoom", testUser1, testUser2);
 
         // check if user roomAccess contains room
-        assertFalse(testUser1.getRooms().contains(room));
-        assertTrue(testUser2.getRooms().contains(room));
+        assertFalse(testUser1.getAvailableRooms().contains(room));
+        assertTrue(testUser2.getAvailableRooms().contains(room));
 
         // check if owner is correct
         assertEquals(room.getOwnerUser(), testUser1);
 
         // check if room access contains users (owner shouldn't be in roomAccess set)
-        assertTrue(room.getRoomAccess().contains(testUser2));
-        assertFalse(room.getRoomAccess().contains(testUser1));
+        assertTrue(room.getUsersWithAccess().contains(testUser2));
+        assertFalse(room.getUsersWithAccess().contains(testUser1));
     }
 
     @Test
@@ -42,8 +42,8 @@ public class RoomTest {
 
         // adding new user to room
         assertTrue(room.addUser(testUser2));
-        assertTrue(room.getRoomAccess().contains(testUser2));
-        assertTrue(testUser2.getRooms().contains(room));
+        assertTrue(room.getUsersWithAccess().contains(testUser2));
+        assertTrue(testUser2.getAvailableRooms().contains(room));
     }
 
     @Test
@@ -54,8 +54,8 @@ public class RoomTest {
         Room room = new Room(testUUID, "testRoom", testUser1, testUser2);
 
         // room access shouldn't contain owner
-        assertFalse(room.getRoomAccess().contains(testUser1));
-        assertTrue(room.getRoomAccess().contains(testUser2));
+        assertFalse(room.getUsersWithAccess().contains(testUser1));
+        assertTrue(room.getUsersWithAccess().contains(testUser2));
 
         // update owner
         room.setOwnerUser(testUser2);
@@ -63,8 +63,8 @@ public class RoomTest {
         // check if owner is updated
         assertEquals(room.getOwnerUser(), testUser2);
         // room access shouldn't contain owner
-        assertFalse(room.getRoomAccess().contains(testUser2));
-        assertTrue(room.getRoomAccess().contains(testUser1));
+        assertFalse(room.getUsersWithAccess().contains(testUser2));
+        assertTrue(room.getUsersWithAccess().contains(testUser1));
     }
 
     @Test

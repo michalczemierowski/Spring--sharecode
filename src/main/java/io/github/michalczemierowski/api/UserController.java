@@ -20,11 +20,19 @@ public class UserController {
         this.dbService = dbService;
     }
 
+    /**
+     * TODO: remove later
+     */
     @GetMapping("get")
     public List<User> getAllUsers() {
         return dbService.getAllUsers();
     }
 
+    /**
+     * Get user by email
+     * @param email user email
+     * @return user object if exists, else throw 404
+     */
     @GetMapping(path = "get/{email}")
     public User getUserByID(@PathVariable("email") String email) {
         Optional<User> user = dbService.findUserByID(email);

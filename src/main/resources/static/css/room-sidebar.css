@@ -1,0 +1,100 @@
+/* The side navigation menu */
+
+.sidepanel {
+  height: 100%;
+  /* 100% Full-height */
+  width: 320px;
+  /* 0 width - change this with JavaScript */
+  position: fixed;
+  /* Stay in place */
+  z-index: 1;
+  /* Stay on top */
+  top: 0;
+  /* Stay at the top */
+  right: 0;
+  background-color: #111;
+  /* Black*/
+  overflow-x: hidden;
+  /* Disable horizontal scroll */
+  padding-top: 60px;
+  /* Place content 60px from the top */
+  transition: 0.5s;
+  /* 0.5 second transition effect to slide in the sidepanel */
+}
+
+.opensidepanel {
+  height: 100px;
+  width: 100px;
+  position: fixed;
+  z-index: 1;
+  bottom: 0;
+  right: 0;
+  background-color: whitesmoke;
+  color: black;
+}
+
+.usericon{
+  width: 50px;
+  height: 50px;
+  border: 1px solid white;
+}
+
+/* The navigation menu links */
+
+.sidepanel div {
+  padding: 8px 8px 8px 8px;
+  display: block;
+  border: 2px dashed white;
+}
+
+.msgusername{
+  font-size: 20px;
+  color: #919191;
+}
+
+.msgcontent{
+  font-size: 15px;
+  color: #818181;
+}
+
+
+/* Position and style the close button (top right corner) */
+
+.sidepanel .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
+
+#main {
+  transition: margin-left .5s;
+  padding: 20px;
+}
+
+/* On smaller screens, where height is less than 450px, change the style of the sidepanel (less padding and a smaller font size) */
+
+@media screen and (max-height: 450px) {
+  .sidepanel {
+    padding-top: 15px;
+  }
+  .sidepanel a {
+    font-size: 18px;
+  }
+}
+
+body {
+  overflow: hidden;
+}
+
+#content {
+  margin: 0;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 100px;
+}

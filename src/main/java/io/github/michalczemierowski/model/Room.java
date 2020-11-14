@@ -1,5 +1,6 @@
 package io.github.michalczemierowski.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
@@ -28,11 +29,15 @@ public class Room {
     @ManyToMany(cascade = CascadeType.ALL)
     @JoinTable(name = "room_access",
             joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "user_email", referencedColumnName = "id"))
-    private Set<User> roomAccess;
+            inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
+    private Set<User> usersWithAccess;
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @JsonManagedReference
+    @OneToMany(mappedBy = "room")
+    private Set<RoomMessage> messages;
 
     // region Constructors
 
@@ -43,16 +48,16 @@ public class Room {
         this.id = id;
         this.name = name;
 
-        this.roomAccess = new HashSet<>();
+        this.usersWithAccess = new HashSet<>();
     }
 
-    public Room(UUID id, String name, User ownerUser, User... roomAccess) {
+    public Room(UUID id, String name, User ownerUser, User... usersWithAccess) {
         this.id = id;
         this.name = name;
         this.ownerUser = ownerUser;
 
-        this.roomAccess = Stream.of(roomAccess).collect(Collectors.toSet());
-        this.roomAccess.forEach(x -> x.getRooms().add(this));
+        this.usersWithAccess = Stream.of(usersWithAccess).collect(Collectors.toSet());
+        this.usersWithAccess.forEach(x -> x.getAvailableRooms().add(this));
     }
 
     // endregion
@@ -73,8 +78,8 @@ public class Room {
      *
      * @return set of users with access to this room
      */
-    public Set<User> getRoomAccess() {
-        return roomAccess;
+    public Set<User> getUsersWithAccess() {
+        return usersWithAccess;
     }
 
     /**
@@ -104,6 +109,10 @@ public class Room {
         return content;
     }
 
+    public Set<RoomMessage> getMessages() {
+        return messages;
+    }
+
     // endregion
 
     // region Setters
@@ -117,9 +126,9 @@ public class Room {
         if (user == null || this.ownerUser.equals(user))
             return;
 
-        roomAccess.remove(user);
+        usersWithAccess.remove(user);
 
-        roomAccess.add(ownerUser);
+        usersWithAccess.add(ownerUser);
         ownerUser = user;
     }
 
@@ -142,11 +151,11 @@ public class Room {
         if (user.equals(ownerUser))
             return false;
 
-        if (roomAccess.contains(user))
+        if (usersWithAccess.contains(user))
             return false;
 
-        roomAccess.add(user);
-        user.getRooms().add(this);
+        usersWithAccess.add(user);
+        user.getAvailableRooms().add(this);
         return true;
     }
 
@@ -156,10 +165,10 @@ public class Room {
      * @param user user that will lose access to this room
      */
     public void removeUser(User user) {
-        if (roomAccess == null)
+        if (usersWithAccess == null)
             return;
 
-        roomAccess.remove(user);
+        usersWithAccess.remove(user);
     }
 
     /**
@@ -170,4 +179,43 @@ public class Room {
     public void setContent(String content) {
         this.content = content;
     }
+
+    public boolean addMessage(RoomMessage message)
+    {
+        if(messages.contains(message))
+            return false;
+
+        messages.add(message);
+        return true;
+    }
+
+    public void removeMessage(RoomMessage message)
+    {
+        if(message == null)
+            return;
+
+        messages.remove(message);
+    }
+
+    // endregion
+
+    // region Utils
+
+    /**
+     * Check if user can view room
+     *
+     * @param authUserID user id
+     * @return true if user can view room
+     */
+    public boolean canUserViewRoom(String authUserID) {
+        // check if user is owner
+        boolean isOwner = ownerUser.getId().equals(authUserID);
+        if (isOwner)
+            return true;
+
+        // check if user has access
+        return usersWithAccess.stream().anyMatch(user -> user.getId().equals(authUserID));
+    }
+
+    // endregion
 }
