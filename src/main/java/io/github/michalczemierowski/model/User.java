@@ -1,12 +1,13 @@
 package io.github.michalczemierowski.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -23,7 +24,11 @@ public class User {
 
     @JsonBackReference
     @ManyToMany(mappedBy = "usersWithAccess")
-    private Set<Room> availableRooms;
+    private List<Room> availableRooms;
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "ownerUser")
+    private List<Room> ownedRooms;
 
     public User() {
     }
@@ -32,16 +37,13 @@ public class User {
         this.id = id;
         this.name = name;
 
-        availableRooms = new HashSet<>();
+        availableRooms = new ArrayList<>();
     }
 
     /**
-     * Get list of available rooms
-     * (not containing owned rooms)
-     *
-     * @return list of available rooms
+     * @return list of available rooms (not containing owned rooms)
      */
-    public Set<Room> getAvailableRooms() {
+    public List<Room> getAvailableRooms() {
         return availableRooms;
     }
 
@@ -54,6 +56,16 @@ public class User {
 
     public String getName() {
         return name;
+    }
+
+    /**
+     * @return List of owned rooms
+     */
+    public List<Room> getOwnedRooms() {
+        if(ownedRooms == null)
+            ownedRooms = new ArrayList<>();
+
+        return ownedRooms;
     }
 
     /**
@@ -72,5 +84,14 @@ public class User {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    /**
+     * Update owned rooms
+     * @param ownedRooms new owned rooms list
+     */
+    public void setOwnedRooms(List<Room> ownedRooms)
+    {
+        this.ownedRooms = ownedRooms;
     }
 }

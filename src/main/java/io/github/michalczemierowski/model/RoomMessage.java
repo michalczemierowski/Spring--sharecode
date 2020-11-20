@@ -1,7 +1,6 @@
 package io.github.michalczemierowski.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonView;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -18,7 +17,7 @@ public class RoomMessage {
     @JoinColumn(name = "room_id")
     public Room room;
 
-    @Column(length = 255, nullable = false)
+    @Column(length = 1024, nullable = false)
     public String content;
 
     @Column(name = "send_datetime", nullable = false)
@@ -36,13 +35,6 @@ public class RoomMessage {
         this.room = room;
         this.content = content;
         this.sendDateTime = LocalDateTime.now();
-    }
-
-    public RoomMessage(User user, Room room, String content, LocalDateTime sendDateTime) {
-        this.user = user;
-        this.room = room;
-        this.content = content;
-        this.sendDateTime = sendDateTime;
     }
 
     public int getId() {

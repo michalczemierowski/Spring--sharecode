@@ -33,7 +33,9 @@ public class SharecodeApplication implements CommandLineRunner {
         User user1 = new User("michalc.jt@gmail.com", "jacekg");
         userRepository.save(user1);
 
-        User user2 = new User("jacek1@wp.pl", "soplicalh");
+        User user2 = new User("damianx2243@gmail.com", "soplicalh");
+
+        userRepository.save(user2);
         Room room = new Room(UUID.fromString("c6f10a73-a992-43e3-b0d3-91510cace478"), "test", user1, user2);
         room.setContent("var x = 5; \nx++;");
 
@@ -42,12 +44,15 @@ public class SharecodeApplication implements CommandLineRunner {
         RoomMessage rm3 = new RoomMessage(user1, room, "asdasdasdasd3");
 
         User user3 = new User("jacek2@wp.pl", "soplicajl");
+        userRepository.save(user3);
 
         Room room2 = new Room(UUID.fromString("c6f10a73-a992-43e3-b0d3-91510cace476"), "testhhj", user3, user1);
         room2.setContent("CONTENT1");
 
         roomRepository.save(room2);
+        room2.addToOwnersOwnedRooms();
         roomRepository.save(room);
+        room.addToOwnersOwnedRooms();
         roomMessagesRepository.save(rm1);
         roomMessagesRepository.save(rm2);
         roomMessagesRepository.save(rm3);

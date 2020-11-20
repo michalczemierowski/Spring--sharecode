@@ -8,52 +8,38 @@
   <link rel="stylesheet" type="text/css" href="/css/room-sidebar.css" />
   <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
   <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+
+  <script>
+    var id = "[[${id}]]";
+    var isOwner = [[${ isOwner }]];
+  </script>
 </head>
 
 <body>
   <div>
-    <!-- Use any element to open the sidenav -->
-    <span class="opensidenav" onclick="openNav()">open</span>
-
+    <button id="open_panel" class="opensidepanel" onclick="openNav()">open</button>
+    <button id="delete_room" class="opensidepanel" style="bottom: 60px;" onclick="deleteRoom()">delete</button>
+    <button id="add_access" class="opensidepanel" style="bottom: 120px;" onclick="addAccess()">delete</button>
+    <button id="remove_access" class="opensidepanel" style="bottom: 180px;" onclick="removeAccess()">delete</button>
+    <button id="close_panel" class="opensidepanel" onclick="closeNav()">close</button>
     <div id="sidepanel" class="sidepanel">
-      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-      <div>
-        <p class="msgusername">username</p>
-        <p class="msgcontent">content content ocntetn content</p>
+      <div id="messages">
+
       </div>
-      <div>
-        <p class="msgusername">username</p>
-        <p class="msgcontent">content content ocntetn content</p>
+      <div style="background-color: #065299;">
+        <input type="text" name="msgcontent" id="msgcontent">
+        <button onclick="sendMessage()">SEND</button>
       </div>
-      <div>
-        <p class="msgusername">username</p>
-        <p class="msgcontent">content content ocntetn content</p>
-      </div>
-      <div>
-        <p class="msgusername">username</p>
-        <p class="msgcontent">content content ocntetn content</p>
-      </div>
-      <button onclick="saveContent()">SAVE CONTENT</button>
     </div>
 
     <script>
-      function openNav() {
-        document.getElementById("sidepanel").style.width = "320px";
-      }
-
-      /* Set the width of the side navigation to 0 */
-      function closeNav() {
-        document.getElementById("sidepanel").style.width = "0";
-      }
-
-      function saveContent() {
-        let path = "/api/v1/room/update/" + id + "/content";
-        $.post(path, { content: editor.getValue() },
-          function (data) {
-            console.log(data);
-          });
-      }
+      $("#close_panel").hide();
+      if (!isOwner)
+        $("#delete_room").hide();
     </script>
+
+    <script src="/js/room/room_api_methods.js"></script>
+    <script src="/js/room/room.js"></script>
 
     <pre id="content"></pre>
 
@@ -64,16 +50,21 @@
       editor.session.setMode("ace/mode/javascript");
 
       var hasContentChanged = false;
-      editor.on("change", function (e) {
-        hasContentChanged = true;
-      });
+      if (isOwner) {
+        editor.on("change", function (e) {
+          hasContentChanged = true;
+        });
 
-      window.setInterval(function () {
-        if (hasContentChanged) {
-          hasContentChanged = false;
-          saveContent();
-        }
-      }, 1500);
+        window.setInterval(function () {
+          if (hasContentChanged) {
+            hasContentChanged = false;
+            saveContent();
+          }
+        }, 1000);
+      }
+      else
+        editor.setReadOnly(true);
+
     </script>
   </div>
   <div>
@@ -97,20 +88,17 @@
       }
     });
 
+
   </script>
   <script>
-    var id = "[[${id}]]";
+    // TODO: get data when loading page instead of sending request
     var path = "/api/v1/room/get/" + id;
 
     $.get(path, function (data) {
       if (data) {
         var jsonData = eval(data);
         $("#name").html(jsonData.name);
-        //var text = document.getElementById("content");
         editor.setValue(jsonData.content);
-        //document.getElementById("content").innerHTML = jsonData.content;
-        //$("#content").textCon
-        // $("#content").innerHTML = jsonData.content;
       }
       else
         $("#name").hide();
@@ -122,10 +110,15 @@
       // on update message received
       eventSource.onmessage = e => {
         if (e) {
-          editor.setValue(e.data);
-          // TODO: fix exception
-          //var roomDataJSON = eval(e.data);
-          //editor.setValue(roomDataJSON.content);
+          let jsonData = JSON.parse(e.data);
+          let cursorPos = editor.getCursorPosition();
+          let newContent = jsonData.content;
+
+          editor.setReadOnly(false);
+          editor.setValue(newContent);
+          editor.setReadOnly(true);
+          editor.clearSelection();
+          editor.moveCursorToPosition(cursorPos);
         }
       };
 
@@ -143,7 +136,11 @@
         console.log('second', e.data);
       }, false);
     }
-    initialize();
+
+    // owner dont need to listen for updates
+    if (!isOwner)
+      initialize();
+
   </script>
 </body>
 

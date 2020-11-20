@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.UUID;
 
 public interface RoomRepository extends JpaRepository<Room, UUID> {
+    List<Room> findByOwnerUserIdOrderByDateOfLastUseDesc(String id);
     List<Room> findByOwnerUserId(String id);
     List<Room> findByUsersWithAccess_Id(String id);
+    boolean existsRoomByName(String name);
 }

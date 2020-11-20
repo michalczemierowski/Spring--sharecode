@@ -1,9 +1,10 @@
 /* The side navigation menu */
 
 .sidepanel {
+  white-space: nowrap;
   height: 100%;
   /* 100% Full-height */
-  width: 320px;
+  width: 0px;
   /* 0 width - change this with JavaScript */
   position: fixed;
   /* Stay in place */
@@ -16,24 +17,24 @@
   /* Black*/
   overflow-x: hidden;
   /* Disable horizontal scroll */
-  padding-top: 60px;
+  padding-top: 8px;
   /* Place content 60px from the top */
   transition: 0.5s;
   /* 0.5 second transition effect to slide in the sidepanel */
 }
 
 .opensidepanel {
-  height: 100px;
-  width: 100px;
+  height: 60px;
+  width: 60px;
+  z-index: 2;
   position: fixed;
-  z-index: 1;
   bottom: 0;
   right: 0;
   background-color: whitesmoke;
   color: black;
 }
 
-.usericon{
+.usericon {
   width: 50px;
   height: 50px;
   border: 1px solid white;
@@ -41,22 +42,25 @@
 
 /* The navigation menu links */
 
-.sidepanel div {
+.messages {
   padding: 8px 8px 8px 8px;
   display: block;
   border: 2px dashed white;
 }
 
-.msgusername{
-  font-size: 20px;
-  color: #919191;
-}
 
-.msgcontent{
+.msgcontent {
   font-size: 15px;
   color: #818181;
 }
 
+.msg{
+  white-space: normal;
+  padding: 8px;
+  border-bottom: 1px solid #065299;
+  font-size: 12px;
+  color: #919191;
+}
 
 /* Position and style the close button (top right corner) */
 
@@ -88,6 +92,7 @@
 
 body {
   overflow: hidden;
+  background-color: #101010;
 }
 
 #content {
@@ -96,5 +101,5 @@ body {
   top: 0;
   bottom: 0;
   left: 0;
-  right: 100px;
+  right: 60px;
 }

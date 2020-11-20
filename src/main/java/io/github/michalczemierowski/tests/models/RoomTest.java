@@ -1,4 +1,4 @@
-package io.github.michalczemierowski.tests;
+package io.github.michalczemierowski.tests.models;
 
 import io.github.michalczemierowski.model.Room;
 import io.github.michalczemierowski.model.User;
@@ -12,7 +12,7 @@ public class RoomTest {
     private final UUID testUUID = UUID.fromString("d674ad24-85c4-4301-88ce-c2565f4b6851");
 
     @Test
-    public void RoomCreationTest() {
+    public void createRoom() {
         User testUser1 = new User("user1@test.com", "testUser1");
         User testUser2 = new User("user2@test.com", "testUser2");
 
@@ -31,7 +31,7 @@ public class RoomTest {
     }
 
     @Test
-    public void RoomAddUserTest()
+    public void addAccessToUser()
     {
         User testUser1 = new User("user1@test.com", "testUser1");
         User testUser2 = new User("user2@test.com", "testUser2");
@@ -47,7 +47,7 @@ public class RoomTest {
     }
 
     @Test
-    public void RoomChangeOwnerTest()
+    public void changeRoomOwner()
     {
         User testUser1 = new User("user1@test.com", "testUser1");
         User testUser2 = new User("user2@test.com", "testUser2");
@@ -68,7 +68,7 @@ public class RoomTest {
     }
 
     @Test
-    public void RoomUpdateNameTest() {
+    public void updateRoomName() {
         User testUser1 = new User("user1@test.com", "testUser1");
 
         String defaultName = "testRoom";

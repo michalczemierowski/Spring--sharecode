@@ -29,6 +29,8 @@
       <button onClick="logout()" class="btn btn-primary">Logout</button>
     </div>
 
+    <button onclick="createRoom()">CREATE ROOM</button>
+
     <div style="float: right;">
       <h2>Owned rooms:</h2>
       <div id="owned_rooms">
@@ -46,7 +48,7 @@
   <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
   <script type="text/javascript" src="js/ajax_setup.js"></script>
   <script>
-    $.get("/getactiveuseremail", function (data) {
+    $.get("/api/v1/user/get-email", function (data) {
       if (data.email) {
         $("#user").html(data.email);
         $(".unauthenticated").hide();
@@ -91,6 +93,13 @@
       return true;
     }
 
+    function createRoom() {
+      let path = "/api/v1/room/create";
+      $.post(path, { room_name: "test room" },
+        function (data) {
+          console.log(data);
+        });
+    }
 
 
   </script>

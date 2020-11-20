@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -22,33 +22,29 @@ public class Room {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @Column(name = "date_of_last_use", nullable = false)
+    public LocalDateTime dateOfLastUse;
+
+    @ManyToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
     private User ownerUser;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     @JoinTable(name = "room_access",
             joinColumns = @JoinColumn(name = "room_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"))
-    private Set<User> usersWithAccess;
+    private List<User> usersWithAccess;
 
     @Column(columnDefinition = "TEXT")
     private String content;
 
     @JsonManagedReference
-    @OneToMany(mappedBy = "room")
-    private Set<RoomMessage> messages;
+    @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RoomMessage> messages;
 
     // region Constructors
 
     public Room() {
-    }
-
-    public Room(UUID id, String name) {
-        this.id = id;
-        this.name = name;
-
-        this.usersWithAccess = new HashSet<>();
     }
 
     public Room(UUID id, String name, User ownerUser, User... usersWithAccess) {
@@ -56,7 +52,9 @@ public class Room {
         this.name = name;
         this.ownerUser = ownerUser;
 
-        this.usersWithAccess = Stream.of(usersWithAccess).collect(Collectors.toSet());
+        this.dateOfLastUse = LocalDateTime.now();
+
+        this.usersWithAccess = Stream.of(usersWithAccess).collect(Collectors.toList());
         this.usersWithAccess.forEach(x -> x.getAvailableRooms().add(this));
     }
 
@@ -78,7 +76,7 @@ public class Room {
      *
      * @return set of users with access to this room
      */
-    public Set<User> getUsersWithAccess() {
+    public List<User> getUsersWithAccess() {
         return usersWithAccess;
     }
 
@@ -89,6 +87,10 @@ public class Room {
      */
     public String getName() {
         return name;
+    }
+
+    public LocalDateTime getDateOfLastUse() {
+        return dateOfLastUse;
     }
 
     /**
@@ -109,7 +111,7 @@ public class Room {
         return content;
     }
 
-    public Set<RoomMessage> getMessages() {
+    public List<RoomMessage> getMessages() {
         return messages;
     }
 
@@ -180,18 +182,16 @@ public class Room {
         this.content = content;
     }
 
-    public boolean addMessage(RoomMessage message)
-    {
-        if(messages.contains(message))
+    public boolean addMessage(RoomMessage message) {
+        if (messages.contains(message))
             return false;
 
         messages.add(message);
         return true;
     }
 
-    public void removeMessage(RoomMessage message)
-    {
-        if(message == null)
+    public void removeMessage(RoomMessage message) {
+        if (message == null)
             return;
 
         messages.remove(message);
@@ -215,6 +215,10 @@ public class Room {
 
         // check if user has access
         return usersWithAccess.stream().anyMatch(user -> user.getId().equals(authUserID));
+    }
+
+    public void addToOwnersOwnedRooms() {
+        ownerUser.getOwnedRooms().add(this);
     }
 
     // endregion

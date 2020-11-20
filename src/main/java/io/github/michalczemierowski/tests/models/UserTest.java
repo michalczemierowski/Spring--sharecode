@@ -1,4 +1,4 @@
-package io.github.michalczemierowski.tests;
+package io.github.michalczemierowski.tests.models;
 
 import io.github.michalczemierowski.model.User;
 import org.junit.Test;
@@ -8,7 +8,7 @@ import static org.junit.Assert.assertEquals;
 public class UserTest {
 
     @Test
-    public void UserChangeNameTest()
+    public void changeUserName()
     {
         String initialName = "testUser";
         String newName = "newName";
@@ -25,7 +25,7 @@ public class UserTest {
     }
 
     @Test
-    public void UserChangeEmailTest()
+    public void changeUserEmail()
     {
         String initialEmail = "user1@test.com";
         String newEmail = "newuser1@test.com";
