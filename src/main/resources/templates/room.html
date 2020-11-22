@@ -16,62 +16,6 @@
 </head>
 
 <body>
-  <div>
-    <button id="open_panel" class="opensidepanel" onclick="openNav()">open</button>
-    <button id="delete_room" class="opensidepanel" style="bottom: 60px;" onclick="deleteRoom()">delete</button>
-    <button id="add_access" class="opensidepanel" style="bottom: 120px;" onclick="addAccess()">delete</button>
-    <button id="remove_access" class="opensidepanel" style="bottom: 180px;" onclick="removeAccess()">delete</button>
-    <button id="close_panel" class="opensidepanel" onclick="closeNav()">close</button>
-    <div id="sidepanel" class="sidepanel">
-      <div id="messages">
-
-      </div>
-      <div style="background-color: #065299;">
-        <input type="text" name="msgcontent" id="msgcontent">
-        <button onclick="sendMessage()">SEND</button>
-      </div>
-    </div>
-
-    <script>
-      $("#close_panel").hide();
-      if (!isOwner)
-        $("#delete_room").hide();
-    </script>
-
-    <script src="/js/room/room_api_methods.js"></script>
-    <script src="/js/room/room.js"></script>
-
-    <pre id="content"></pre>
-
-    <script src="/js/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
-    <script>
-      var editor = ace.edit("content");
-      editor.setTheme("ace/theme/twilight");
-      editor.session.setMode("ace/mode/javascript");
-
-      var hasContentChanged = false;
-      if (isOwner) {
-        editor.on("change", function (e) {
-          hasContentChanged = true;
-        });
-
-        window.setInterval(function () {
-          if (hasContentChanged) {
-            hasContentChanged = false;
-            saveContent();
-          }
-        }, 1000);
-      }
-      else
-        editor.setReadOnly(true);
-
-    </script>
-  </div>
-  <div>
-    <a class="btn btn-primary" href="/">Home</a>
-  </div>
-
-  <h2 th:text="'Hello, ' + ${id}" id="name"></h2>
   <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
   <script>
     $.ajaxSetup({
@@ -87,9 +31,62 @@
         }
       }
     });
+  </script>
 
+  <div class="sp-buttons">
+    <button id="home_button" class="sp-button" style="top: 3px; position: fixed;" onclick="location.href = '/'">home</button>
+    <button id="delete_room" class="sp-button" onclick="deleteRoom()">delete</button>
+    <button id="add_access" class="sp-button" onclick="addAccess()">add_access</button>
+    <button id="remove_access" class="sp-button" onclick="removeAccess()">delete</button>
+    <button id="open_panel" class="sp-button" onclick="openNav()">open</button>
+    <button id="close_panel" class="sp-button" onclick="closeNav()">close</button>
+  </div>
+
+  <div id="sidepanel" class="sidepanel">
+    <div class="msg-div" id="msg-div">
+
+    </div>
+    <div class="send-msg-div">
+      <input class="send-msg-input" type="text" name="send-msg-input" id="send-msg-input">
+      <button class="send-msg-btn" id="send-msg-btn" onclick="sendMessage()">&raquo;</button>
+    </div>
+  </div>
+
+  <script>
+    $("#close_panel").hide();
+    if (!isOwner)
+      $("#delete_room").hide();
+  </script>
+
+  <script src="/js/room/room_api_methods.js"></script>
+  <script src="/js/room/room.js"></script>
+
+  <pre id="content"></pre>
+
+  <script src="/js/src-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
+  <script>
+    var editor = ace.edit("content");
+    editor.setTheme("ace/theme/twilight");
+    editor.session.setMode("ace/mode/javascript");
+
+    var hasContentChanged = false;
+    if (isOwner) {
+      editor.on("change", function (e) {
+        hasContentChanged = true;
+      });
+
+      window.setInterval(function () {
+        if (hasContentChanged) {
+          hasContentChanged = false;
+          saveContent();
+        }
+      }, 1000);
+    }
+    else
+      editor.setReadOnly(true);
 
   </script>
+
   <script>
     // TODO: get data when loading page instead of sending request
     var path = "/api/v1/room/get/" + id;

@@ -32,7 +32,7 @@ public class RoomController {
         String authUserID = principal.getAttribute("email");
         Optional<List<RoomMessage>> roomMessages = roomService.getRoomMessages(id, authUserID);
 
-        return roomMessages.isPresent()
+        return roomMessages.isPresent() && roomMessages.get().size() > 0
                 ? ResponseEntity.ok(roomMessages.get())
                 : ResponseEntity.noContent().build();
     }

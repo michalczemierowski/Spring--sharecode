@@ -14,8 +14,11 @@
 </head>
 
 <body>
+  <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+  <script type="text/javascript" src="js/ajax_setup.js"></script>
+
   <div class="containter unauthenticated">
-    <h1>Hello</h1>
+    <h1>Hi there</h1>
     <div class="btn btn-primary">
       <a href="/sign-in">LOGIN</a>
     </div>
@@ -45,8 +48,6 @@
 
   </div>
 
-  <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
-  <script type="text/javascript" src="js/ajax_setup.js"></script>
   <script>
     $.get("/api/v1/user/get-email", function (data) {
       if (data.email) {

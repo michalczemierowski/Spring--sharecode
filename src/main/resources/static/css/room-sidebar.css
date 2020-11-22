@@ -8,7 +8,7 @@
   /* 0 width - change this with JavaScript */
   position: fixed;
   /* Stay in place */
-  z-index: 1;
+  z-index: 2;
   /* Stay on top */
   top: 0;
   /* Stay at the top */
@@ -21,40 +21,73 @@
   /* Place content 60px from the top */
   transition: 0.5s;
   /* 0.5 second transition effect to slide in the sidepanel */
+  margin-right: 72px;
+  border-right: 2px solid #065299;
 }
 
-.opensidepanel {
-  height: 60px;
-  width: 60px;
-  z-index: 2;
+.sp-buttons {
   position: fixed;
+  display: grid;
+  grid-template-columns: 70px;
+  grid-template-rows: 70px;
+  align-content: end;
+  width: 70px;
+  height: 100%;
+  bottom: 0px;
+  right: 0px;
+  z-index: 3;
+}
+
+.msg-div {
+  width: 318px;
+  height: 100%;
+  overflow-y: auto;
+  /* bottom: 60px; */
+}
+
+.send-msg-div {
+  position: absolute;
+  display: flex;
+  width: 318px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+  background-color: #065299;
+  border-top: 1px solid #111;
   bottom: 0;
-  right: 0;
+}
+
+.send-msg-btn {
+  float: right;
+  width: 30px;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+.send-msg-input {
+  height: 100%;
+  width: 100%;
+}
+
+.sp-button {
+  height: 64px;
+  width: 64px;
+  margin: 3px;
+  /* z-index: 3; */
+  /* position: fixed;
+  bottom: 3px;
+  right: 0; */
   background-color: whitesmoke;
   color: black;
 }
 
-.usericon {
-  width: 50px;
-  height: 50px;
-  border: 1px solid white;
-}
-
-/* The navigation menu links */
-
-.messages {
-  padding: 8px 8px 8px 8px;
-  display: block;
-  border: 2px dashed white;
-}
-
-
-.msgcontent {
+.send-msg-input {
   font-size: 15px;
   color: #818181;
 }
 
-.msg{
+.msg {
+  position: relative;
   white-space: normal;
   padding: 8px;
   border-bottom: 1px solid #065299;
@@ -62,32 +95,15 @@
   color: #919191;
 }
 
-/* Position and style the close button (top right corner) */
-
-.sidepanel .closebtn {
+.top-right {
   position: absolute;
-  top: 0;
-  right: 25px;
-  font-size: 36px;
-  margin-left: 50px;
+  top: 3px;
+  right: 3px;
 }
-
-/* Style page content - use this if you want to push the page content to the right when you open the side navigation */
 
 #main {
   transition: margin-left .5s;
   padding: 20px;
-}
-
-/* On smaller screens, where height is less than 450px, change the style of the sidepanel (less padding and a smaller font size) */
-
-@media screen and (max-height: 450px) {
-  .sidepanel {
-    padding-top: 15px;
-  }
-  .sidepanel a {
-    font-size: 18px;
-  }
 }
 
 body {
@@ -98,8 +114,12 @@ body {
 #content {
   margin: 0;
   position: absolute;
+  border: none;
+  border-radius: 0;
+  border-right: 2px solid #065299;
   top: 0;
   bottom: 0;
   left: 0;
-  right: 60px;
+  right: 72px;
+  transition: 0.5s;
 }

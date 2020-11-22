@@ -1,3 +1,13 @@
+function createChatMessage(id, userName, content) {
+	// show button only if user is owner
+	let deleteButton = isOwner ? '<button class="top-right" onclick="deleteMessage(' + id + ')">&times;</button>' : "";
+	return `
+	<div class="msg" id="msg_${id}">
+	  ${userName}${deleteButton}
+	  <p class="msgcontent">${content}</p>
+	</div>`
+}
+
 function updateMessages() {
 	$.ajax({
 		url: "/api/v1/room/get/" + id + "/messages",
@@ -10,38 +20,31 @@ function updateMessages() {
 			let html = "";
 			for (let i = 0; i < result.length; i++) {
 				let row = result[i];
-				html += `
-            <div class="msg" id="msg_${row.id}">
-              ${row.user.name}<button onclick="deleteMessage(${row.id})">x</button>
-              <p class="msgcontent">${row.content}</p>
-            </div>`;
+				html += createChatMessage(row.id, row.user.name, row.content);
 			}
 
-			$("#messages").html(html);
+			$("#msg-div").html(html);
 		}
 	});
 }
 
 function sendMessage() {
-	if (!$("#msgcontent").val())
+	if (!$("#send-msg-input").val())
 		return;
 
 	$.ajax({
 		url: "/api/v1/room/update/" + id + "/add-message",
 		type: 'POST',
-		data: { content: $("#msgcontent").val() },
+		data: { content: $("#send-msg-input").val() },
 		success: function (result) {
 			console.log(result);
-			let html = $("#messages").html();
-			html += `
-          <div class="msg" id="msg_${result.id}">
-            ${result.user.name}<button onclick="deleteMessage(${result.id})">x</button>
-            <p class="msgcontent">${result.content}</p>
-          </div>`;
-			$("#messages").html(html);
+			let html = $("#msg-div").html();
+			html += createChatMessage(result.id, result.user.name, result.content);
+
+			$("#msg-div").html(html);
 		}
 	});
-	$("#msgcontent").val("");
+	$("#send-msg-input").val("");
 }
 
 function deleteMessage(msg_id) {
