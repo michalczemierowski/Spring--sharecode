@@ -1,6 +1,7 @@
 package io.github.michalczemierowski.tests.services;
 
 import io.github.michalczemierowski.model.Room;
+import io.github.michalczemierowski.model.RoomMessage;
 import io.github.michalczemierowski.model.User;
 import io.github.michalczemierowski.service.RoomService;
 import org.junit.Test;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -28,6 +30,23 @@ public class RoomServiceIntegrationTest {
 
     @SpyBean
     private RoomService roomService;
+
+    @Test
+    public void getRoomById()
+    {
+        User testOwner = new User("test-get@owner.com", "test");
+        entityManager.persist(testOwner);
+
+        Room testRoom = new Room(testUUID, "testRoom-get", testOwner);
+        entityManager.persist(testRoom);
+
+        Optional<Room> foundRoom = roomService.getRoom(testUUID, testOwner.getId());
+
+        // check if room found
+        assertTrue(foundRoom.isPresent());
+        // check if room is the same
+        assertEquals(testRoom, foundRoom.get());
+    }
 
     @Test
     public void createRoom()
@@ -54,12 +73,10 @@ public class RoomServiceIntegrationTest {
 
         Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom-get-available");
 
-        // check if room was created
+        // assert that room was created successfully
         assertTrue(optionalRoom.isPresent());
 
         Room createdRoom = optionalRoom.get();
-
-        // TODO
     }
 
     @Test
@@ -73,9 +90,8 @@ public class RoomServiceIntegrationTest {
 
         Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom-get-available");
 
-        // check if room was created
+        // assert that room was created successfully
         assertTrue(optionalRoom.isPresent());
-
         Room createdRoom = optionalRoom.get();
 
         // add access to testUser
@@ -87,19 +103,39 @@ public class RoomServiceIntegrationTest {
     }
 
     @Test
-    public void getRoomById()
+    public void roomMessagesTest()
     {
-        User testOwner = new User("test-get@owner.com", "test");
+        User testOwner = new User("test@owner.com", "test");
         entityManager.persist(testOwner);
 
-        Room testRoom = new Room(testUUID, "testRoom-get", testOwner);
-        entityManager.persist(testRoom);
+        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom-create");
 
-        Optional<Room> foundRoom = roomService.getRoom(testUUID, testOwner.getId());
+        // assert that room was created successfully
+        assertTrue(optionalRoom.isPresent());
+        Room room = optionalRoom.get();
 
-        // check if room found
-        assertTrue(foundRoom.isPresent());
-        // check if room is the same
-        assertEquals(testRoom, foundRoom.get());
+        Optional<RoomMessage> createdRoomMessage = roomService.addRoomMessage(room.getId(), testOwner.getId(), "test");
+
+        // check if message was created, and content is the same
+        assertTrue(createdRoomMessage.isPresent());
+        assertEquals(createdRoomMessage.get().getContent(), "test");
+
+        // try to find message by id
+        Optional<List<RoomMessage>> roomMessages = roomService.getRoomMessages(room.getId(), testOwner.getId());
+
+        // check if list contains created room
+        assertTrue(roomMessages.isPresent());
+        assertTrue(roomMessages.get().stream().anyMatch(msg -> msg.getId() == createdRoomMessage.get().getId()));
+
+        // check if room was deleted successfully
+        boolean deleted = roomService.deleteRoomMessage(room.getId(), testOwner.getId(), createdRoomMessage.get().getId());
+        assertTrue(deleted);
+
+        roomMessages = roomService.getRoomMessages(room.getId(), testOwner.getId());
+
+        // now list shouldn't contain created room
+        assertTrue(roomMessages.isPresent());
+        assertFalse(roomMessages.get().stream().anyMatch(msg -> msg.getId() == createdRoomMessage.get().getId()));
     }
+
 }

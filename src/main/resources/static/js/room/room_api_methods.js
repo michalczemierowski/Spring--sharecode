@@ -1,11 +1,22 @@
-function createChatMessage(id, userName, content) {
+function createChatMessage(id, userName, sendDateTime, content) {
 	// show button only if user is owner
 	let deleteButton = isOwner ? '<button class="top-right" onclick="deleteMessage(' + id + ')">&times;</button>' : "";
 	return `
 	<div class="msg" id="msg_${id}">
-	  ${userName}${deleteButton}
-	  <p class="msgcontent">${content}</p>
+	  <p class="name">${userName}${deleteButton}</p>
+	  <p class="content">${content}</p>
+	  <p class="date">${sendDateTime}</p>
 	</div>`
+}
+
+function formatDate(date)
+{
+	return date.getUTCFullYear() + "/" +
+	("0" + (date.getUTCMonth() + 1)).slice(-2) + "/" +
+	("0" + date.getUTCDate()).slice(-2) + " " +
+	("0" + date.getUTCHours()).slice(-2) + ":" +
+	("0" + date.getUTCMinutes()).slice(-2) + ":" +
+	("0" + date.getUTCSeconds()).slice(-2);
 }
 
 function updateMessages() {
@@ -20,7 +31,11 @@ function updateMessages() {
 			let html = "";
 			for (let i = 0; i < result.length; i++) {
 				let row = result[i];
-				html += createChatMessage(row.id, row.user.name, row.content);
+
+				let sendDate = new Date(row.sendDateTime);
+				let dateStr = formatDate(sendDate);
+
+				html += createChatMessage(row.id, row.user.name, dateStr, row.content);
 			}
 
 			$("#msg-div").html(html);
@@ -37,9 +52,11 @@ function sendMessage() {
 		type: 'POST',
 		data: { content: $("#send-msg-input").val() },
 		success: function (result) {
-			console.log(result);
+			let sendDate = new Date(result.sendDateTime);
+			let dateStr = formatDate(sendDate);
+
 			let html = $("#msg-div").html();
-			html += createChatMessage(result.id, result.user.name, result.content);
+			html += createChatMessage(result.id, result.user.name, dateStr, result.content);
 
 			$("#msg-div").html(html);
 		}

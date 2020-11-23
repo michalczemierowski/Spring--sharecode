@@ -49,9 +49,9 @@
   </div>
 
   <script>
-    $.get("/api/v1/user/get-email", function (data) {
+    $.get("/api/v1/user/get-data", function (data) {
       if (data.email) {
-        $("#user").html(data.email);
+        $("#user").html(data.name + "(" + data.email + ")");
         $(".unauthenticated").hide();
         $(".authenticated").show();
       }
@@ -78,10 +78,11 @@
     });
 
     function getNamesFromJSON(json) {
-      var content = "";
+      var content = "<ul>";
       json.forEach(function (obj) {
-        content += "* <a href=\"/room/" + obj.id + " \">" + obj.name + "</a><br>";
+        content += "<li><a href=\"/room/" + obj.id + " \">" + obj.name + "</a></li>";
       });
+      content += "</ul>";
       return content;
     }
 

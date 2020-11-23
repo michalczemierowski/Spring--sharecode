@@ -95,6 +95,25 @@
   color: #919191;
 }
 
+.msg .name{
+  font-size: 11px;
+}
+
+.msg .content{
+  font-size: 14px;
+  width: 100%;
+  white-space: initial;
+  word-wrap: break-word;
+}
+
+.msg .date{
+  font-size: 10px;
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+  margin: 0;
+}
+
 .top-right {
   position: absolute;
   top: 3px;

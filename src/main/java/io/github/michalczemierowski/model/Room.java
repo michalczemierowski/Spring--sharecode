@@ -5,6 +5,7 @@ import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -183,6 +184,9 @@ public class Room {
     }
 
     public boolean addMessage(RoomMessage message) {
+        if(messages == null)
+            messages = new ArrayList<>();
+
         if (messages.contains(message))
             return false;
 
@@ -215,10 +219,6 @@ public class Room {
 
         // check if user has access
         return usersWithAccess.stream().anyMatch(user -> user.getId().equals(authUserID));
-    }
-
-    public void addToOwnersOwnedRooms() {
-        ownerUser.getOwnedRooms().add(this);
     }
 
     // endregion

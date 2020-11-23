@@ -67,19 +67,12 @@ public class RoomService {
         Optional<User> optionalUser = userRepository.findById(userId);
 
         if (optionalUser.isPresent()) {
-            while (roomRepository.existsRoomByName(roomName)) {
-                char lastChar = roomName.charAt(roomName.length() - 1);
-                if (Character.isDigit(lastChar)) {
-                    int lastDigit = Character.getNumericValue(lastChar);
-                    roomName = roomName.substring(0, roomName.length() - 1) + (++lastDigit);
-                } else
-                    roomName += "_0";
-            }
-
+            User user = optionalUser.get();
             Room newRoom = new Room(UUID.randomUUID(), roomName, optionalUser.get());
 
             Room savedRoom = roomRepository.save(newRoom);
-            savedRoom.addToOwnersOwnedRooms();
+            user.getOwnedRooms().add(savedRoom);
+            userRepository.save(user);
 
             return Optional.of(savedRoom);
         }
@@ -126,7 +119,8 @@ public class RoomService {
         if (optionalRoom.isPresent()) {
             Room room = optionalRoom.get();
 
-            if (room.getOwnerUser().getId().equals(userId)) {
+            // if user is owner and targetUserId is not same as userId
+            if (room.getOwnerUser().getId().equals(userId) && !userId.equals(targetUserId)) {
                 Optional<User> optionalUser = userRepository.findById(targetUserId);
                 // if user exists and don't have access
                 if (optionalUser.isPresent() && !room.getUsersWithAccess().contains(optionalUser.get())) {
@@ -169,7 +163,7 @@ public class RoomService {
             Room room = optionalRoom.get();
 
             // if user has access to view room
-            if (room.canUserViewRoom(userId)) {
+            if (room.canUserViewRoom(userId) && room.getMessages() != null) {
                 return Optional.of(room.getMessages());
             }
         }
@@ -189,6 +183,7 @@ public class RoomService {
                 if (optionalUser.isPresent()) {
                     RoomMessage newMessage = new RoomMessage(optionalUser.get(), room, content);
                     roomMessagesRepository.save(newMessage);
+                    room.addMessage(newMessage);
                     return Optional.of(newMessage);
                 }
             }
@@ -199,12 +194,18 @@ public class RoomService {
     public boolean deleteRoomMessage(UUID roomId, String userId, int messageId) {
         Optional<Room> optionalRoom = roomRepository.findById(roomId);
 
-        if (optionalRoom.isPresent() && optionalRoom.get().canUserViewRoom(userId)) {
-            Optional<RoomMessage> optionalRoomMessage = roomMessagesRepository.findById(messageId);
+        if (optionalRoom.isPresent()) {
+            Room room = optionalRoom.get();
 
-            if (optionalRoomMessage.isPresent()) {
-                roomMessagesRepository.delete(optionalRoomMessage.get());
-                return true;
+            if (room.canUserViewRoom(userId))
+            {
+                Optional<RoomMessage> optionalRoomMessage = roomMessagesRepository.findById(messageId);
+
+                if (optionalRoomMessage.isPresent()) {
+                    roomMessagesRepository.delete(optionalRoomMessage.get());
+                    room.removeMessage(optionalRoomMessage.get());
+                    return true;
+                }
             }
         }
 

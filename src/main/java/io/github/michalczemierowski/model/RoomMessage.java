@@ -10,22 +10,22 @@ import java.time.LocalDateTime;
 public class RoomMessage {
     @Id
     @GeneratedValue
-    public int id;
+    private int id;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
-    public Room room;
+    private Room room;
 
     @Column(length = 1024, nullable = false)
-    public String content;
+    private String content;
 
     @Column(name = "send_datetime", nullable = false)
-    public LocalDateTime sendDateTime;
+    private LocalDateTime sendDateTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    public User user;
+    private User user;
 
     public RoomMessage() {
     }

@@ -13,11 +13,16 @@ import java.util.Map;
 @RestController
 public class UserController {
 
+    @RequestMapping("/get-data")
+    @ResponseBody
+    public Map<String, Object> getData(@AuthenticationPrincipal OAuth2User principal) {
+        return principal.getAttributes();
+    }
+
     @RequestMapping("/get-name")
     @ResponseBody
     public Map<String, Object> user(@AuthenticationPrincipal OAuth2User principal) {
-        return principal.getAttributes();
-        //return Collections.singletonMap("name", principal.getAttribute("name"));
+        return Collections.singletonMap("name", principal.getAttribute("name"));
     }
 
     @RequestMapping("/get-email")
