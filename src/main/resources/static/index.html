@@ -33,6 +33,7 @@
     </div>
 
     <button onclick="createRoom()">CREATE ROOM</button>
+    <button onclick="setName()">SET NAME</button>
 
     <div style="float: right;">
       <h2>Owned rooms:</h2>
@@ -50,32 +51,38 @@
 
   <script>
     $.get("/api/v1/user/get-data", function (data) {
-      if (data.email) {
-        $("#user").html(data.name + "(" + data.email + ")");
+      if (data.id) {
+        $("#user").html(data.name + "(" + data.id + ")");
         $(".unauthenticated").hide();
         $(".authenticated").show();
       }
     });
 
-    $.get("/api/v1/room/get-owned", function (data) {
-      if (data) {
-        var jsonData = eval(data);
-        var content = getNamesFromJSON(jsonData);
-        $("#owned_rooms").html(content);
-      }
-      else
-        $("#owned_rooms").hide();
-    });
+    function getOwned()
+    {
+      $.get("/api/v1/room/get-owned", function (data) {
+        if (data) {
+          var jsonData = eval(data);
+          var content = getNamesFromJSON(jsonData);
+          $("#owned_rooms").html(content);
+        }
+        else
+          $("#owned_rooms").hide();
+      });
+    }
 
-    $.get("/api/v1/room/get-available", function (data) {
-      if (data) {
-        var jsonData = eval(data);
-        var content = getNamesFromJSON(jsonData);
-        $("#available_rooms").html(content);
-      }
-      else
-        $("#available_rooms").hide();
-    });
+    function getAvailable()
+    {
+      $.get("/api/v1/room/get-available", function (data) {
+        if (data) {
+          var jsonData = eval(data);
+          var content = getNamesFromJSON(jsonData);
+          $("#available_rooms").html(content);
+        }
+        else
+          $("#available_rooms").hide();
+      });
+    }
 
     function getNamesFromJSON(json) {
       var content = "<ul>";
@@ -99,11 +106,19 @@
       let path = "/api/v1/room/create";
       $.post(path, { room_name: "test room" },
         function (data) {
+          getOwned();
+        });
+    }
+    function setName() {
+      let path = "/api/v1/user/set-name";
+      $.post(path, { name: "jacekSoplica1" },
+        function (data) {
           console.log(data);
         });
     }
 
-
+    getOwned();
+    getAvailable();
   </script>
 </body>
 

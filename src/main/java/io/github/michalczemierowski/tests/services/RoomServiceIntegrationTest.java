@@ -34,10 +34,10 @@ public class RoomServiceIntegrationTest {
     @Test
     public void getRoomById()
     {
-        User testOwner = new User("test-get@owner.com", "test");
+        User testOwner = new User("test@owner.com", "test");
         entityManager.persist(testOwner);
 
-        Room testRoom = new Room(testUUID, "testRoom-get", testOwner);
+        Room testRoom = new Room(testUUID, "testRoom", testOwner);
         entityManager.persist(testRoom);
 
         Optional<Room> foundRoom = roomService.getRoom(testUUID, testOwner.getId());
@@ -54,7 +54,7 @@ public class RoomServiceIntegrationTest {
         User testOwner = new User("test@owner.com", "test");
         entityManager.persist(testOwner);
 
-        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom-create");
+        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom");
 
         // check if room was created
         assertTrue(optionalRoom.isPresent());
@@ -65,13 +65,13 @@ public class RoomServiceIntegrationTest {
     @Test
     public void getOwnedRooms()
     {
-        User testOwner = new User("test-get-owned@owner.com", "test");
-        User testUser = new User("test-get-owned@user.com", "test");
+        User testOwner = new User("test@owner.com", "test");
+        User testUser = new User("test@user.com", "test");
 
         entityManager.persist(testOwner);
         entityManager.persist(testUser);
 
-        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom-get-available");
+        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom");
 
         // assert that room was created successfully
         assertTrue(optionalRoom.isPresent());
@@ -80,35 +80,40 @@ public class RoomServiceIntegrationTest {
     }
 
     @Test
-    public void addRoomAccess()
+    public void addRemoveRoomAccess()
     {
-        User testOwner = new User("test-get-available@owner.com", "test");
-        User testUser = new User("test-get-available@user.com", "test");
+        User testOwner = new User("test@owner.com", "test");
+        User testUser = new User("test@user.com", "test");
 
         entityManager.persist(testOwner);
         entityManager.persist(testUser);
 
-        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom-get-available");
+        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom");
 
         // assert that room was created successfully
         assertTrue(optionalRoom.isPresent());
         Room createdRoom = optionalRoom.get();
 
         // add access to testUser
-        boolean accessAdded = roomService.addRoomAccessForUser(createdRoom.getId(), testOwner.getId(), testUser.getId());
-        assertTrue(accessAdded);
+        boolean accessWasAdded = roomService.addRoomAccessForUser(createdRoom.getId(), testOwner.getId(), testUser.getId());
 
+        assertTrue(accessWasAdded);
         assertFalse(createdRoom.getUsersWithAccess().contains(testOwner));
         assertTrue(createdRoom.getUsersWithAccess().contains(testUser));
+
+        boolean accessWasRemoved = roomService.removeRoomAccessFromUser(createdRoom.getId(), testOwner.getId(), testUser.getId());
+
+        assertTrue(accessWasRemoved);
+        assertFalse(createdRoom.getUsersWithAccess().contains(testUser));
     }
 
     @Test
-    public void roomMessagesTest()
+    public void roomMessages()
     {
         User testOwner = new User("test@owner.com", "test");
         entityManager.persist(testOwner);
 
-        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom-create");
+        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom");
 
         // assert that room was created successfully
         assertTrue(optionalRoom.isPresent());
@@ -128,8 +133,8 @@ public class RoomServiceIntegrationTest {
         assertTrue(roomMessages.get().stream().anyMatch(msg -> msg.getId() == createdRoomMessage.get().getId()));
 
         // check if room was deleted successfully
-        boolean deleted = roomService.deleteRoomMessage(room.getId(), testOwner.getId(), createdRoomMessage.get().getId());
-        assertTrue(deleted);
+        boolean messageWasDeleted = roomService.deleteRoomMessage(room.getId(), testOwner.getId(), createdRoomMessage.get().getId());
+        assertTrue(messageWasDeleted);
 
         roomMessages = roomService.getRoomMessages(room.getId(), testOwner.getId());
 

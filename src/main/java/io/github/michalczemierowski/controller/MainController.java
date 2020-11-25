@@ -35,6 +35,8 @@ public class MainController {
 
             boolean isOwnerUser = room.getOwnerUser().getId().equals(authUserID);
             model.addAttribute("id", id);
+            model.addAttribute("name", room.getName());
+            model.addAttribute("email", authUserID);
             model.addAttribute("isOwner", isOwnerUser);
 
             return "room";

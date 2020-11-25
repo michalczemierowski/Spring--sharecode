@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 
 <head>
-  <title>TEST</title>
+  <title>TEST - [[${name}]]</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="/css/room-sidebar.css" />
@@ -11,7 +11,9 @@
 
   <script>
     var id = "[[${id}]]";
+    var name = "[[${name}]]";
     var isOwner = [[${ isOwner }]];
+    var email = "[[${email}]]";
   </script>
 </head>
 
@@ -34,7 +36,8 @@
   </script>
 
   <div class="sp-buttons">
-    <button id="home_button" class="sp-button" style="top: 3px; position: fixed;" onclick="location.href = '/'">home</button>
+    <button id="home_button" class="sp-button" style="top: 3px; position: fixed;"
+      onclick="location.href = '/'">home</button>
     <button id="delete_room" class="sp-button" onclick="deleteRoom()">delete</button>
     <button id="add_access" class="sp-button" onclick="addAccess()">add_access</button>
     <button id="remove_access" class="sp-button" onclick="removeAccess()">delete</button>
@@ -93,51 +96,26 @@
 
     $.get(path, function (data) {
       if (data) {
-        var jsonData = eval(data);
-        $("#name").html(jsonData.name);
-        editor.setValue(jsonData.content);
+        var roomJSON = eval(data);
+        $("#name").html(roomJSON.name);
+
+        if(roomJSON.content)
+        {
+          editor.setReadOnly(false);
+          editor.setValue(roomJSON.content);
+          editor.setReadOnly(true);
+          editor.clearSelection();
+        }
       }
       else
         $("#name").hide();
     });
 
-    function initialize() {
-      const eventSource = new EventSource("/notifications/" + id);
+    // load all messages
+    loadMessages();
 
-      // on update message received
-      eventSource.onmessage = e => {
-        if (e) {
-          let jsonData = JSON.parse(e.data);
-          let cursorPos = editor.getCursorPosition();
-          let newContent = jsonData.content;
-
-          editor.setReadOnly(false);
-          editor.setValue(newContent);
-          editor.setReadOnly(true);
-          editor.clearSelection();
-          editor.moveCursorToPosition(cursorPos);
-        }
-      };
-
-      eventSource.onopen = e => console.log('open');
-      eventSource.onerror = e => {
-        if (e.readyState == EventSource.CLOSED) {
-          console.log('close');
-        }
-        else {
-          console.log(e);
-        }
-      };
-
-      eventSource.addEventListener('second', function (e) {
-        console.log('second', e.data);
-      }, false);
-    }
-
-    // owner dont need to listen for updates
-    if (!isOwner)
-      initialize();
-
+    // register SSE listeners
+    listenForUpdates();
   </script>
 </body>
 

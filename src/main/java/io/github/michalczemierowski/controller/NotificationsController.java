@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.UUID;
 
 @RequestMapping("notifications")
@@ -17,17 +16,18 @@ public class NotificationsController {
     @Autowired
     private SsePushNotificationService ssePushNotificationService;
 
-    @GetMapping("/{id}")
-    public ResponseEntity<RoomSseEmitter> registerNotifications(@PathVariable("id") UUID id) throws InterruptedException, IOException {
+    @GetMapping("/room/{id}/{email}")
+    public ResponseEntity<RoomSseEmitter> registerContentNotifications(@PathVariable("id") UUID id,
+                                                                       @PathVariable("email") String authUserId) {
         // create emitter and assign room id
         final RoomSseEmitter emitter = new RoomSseEmitter();
-        emitter.setTargetRoomId(id);
+        emitter.setUserId(authUserId);
 
         // add emitter to list
-        ssePushNotificationService.addRoomSSEEmitter(emitter);
+        ssePushNotificationService.addRoomContentSSEEmitter(id, emitter);
 
-        emitter.onCompletion(() -> ssePushNotificationService.removeRoomSSEEmitter(emitter));
-        emitter.onTimeout(() -> ssePushNotificationService.removeRoomSSEEmitter(emitter));
+        emitter.onCompletion(() -> ssePushNotificationService.removeRoomContentSSEEmitter(id, emitter));
+        emitter.onTimeout(() -> ssePushNotificationService.removeRoomContentSSEEmitter(id, emitter));
 
         return new ResponseEntity<>(emitter, HttpStatus.OK);
     }

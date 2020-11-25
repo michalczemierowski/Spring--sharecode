@@ -28,6 +28,7 @@ public class RoomMessage {
     private User user;
 
     public RoomMessage() {
+        this.sendDateTime = LocalDateTime.now();
     }
 
     public RoomMessage(User user, Room room, String content) {

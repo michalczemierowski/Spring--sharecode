@@ -62,7 +62,7 @@ public class RoomController {
 
     @PostMapping(path = "/create")
     public ResponseEntity<Room> createRoom(@AuthenticationPrincipal OAuth2User principal,
-                                           @RequestParam(name = "room_name", defaultValue = "new room") String roomName) {
+                                           @RequestParam(name = "room_name") @NotNull String roomName) {
         String authUserID = principal.getAttribute("email");
         Optional<Room> optionalRoom = roomService.createRoom(authUserID, roomName);
 
@@ -82,7 +82,7 @@ public class RoomController {
     @PostMapping(path = "/update/{id}/add-access")
     public HttpStatus addRoomAccesForUser(@AuthenticationPrincipal OAuth2User principal,
                                           @PathVariable("id") UUID id,
-                                          @RequestParam(name = "target_user_id") String targetUserId) {
+                                          @RequestParam(name = "target_user_id") @NotNull String targetUserId) {
         String authUserId = principal.getAttribute("email");
 
         return roomService.addRoomAccessForUser(id, authUserId, targetUserId)
@@ -93,12 +93,16 @@ public class RoomController {
     @PostMapping(path = "/update/{id}/remove-access")
     public HttpStatus removeRoomAccessFromUser(@AuthenticationPrincipal OAuth2User principal,
                                                @PathVariable("id") UUID id,
-                                               @RequestParam(name = "target_user_id") String targetUserId) {
+                                               @RequestParam(name = "target_user_id") @NotNull String targetUserId) {
         String authUserId = principal.getAttribute("email");
+        boolean accessWasRemoved = roomService.removeRoomAccessFromUser(id, authUserId, targetUserId);
 
-        return roomService.removeRoomAccessFromUser(id, authUserId, targetUserId)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        if (accessWasRemoved) {
+            ssePushNotificationService.sendRoomRemoveAccessNotification(id, targetUserId);
+            return HttpStatus.OK;
+        }
+
+        return HttpStatus.NOT_FOUND;
     }
 
     @PostMapping(path = "/update/{id}/set-content")
@@ -110,7 +114,7 @@ public class RoomController {
 
         if (optionalRoom.isPresent()) {
             // send SSE to clients
-            ssePushNotificationService.sendRoomUpdateNotification(optionalRoom.get());
+            ssePushNotificationService.sendRoomContentUpdateNotification(optionalRoom.get());
 
             return HttpStatus.OK;
         }
@@ -124,11 +128,16 @@ public class RoomController {
             @PathVariable("id") @NotNull UUID id,
             @RequestParam(name = "content") @Size(min = 1, max = 1024) String content) {
         String authUserID = principal.getAttribute("email");
-        Optional<RoomMessage> roomMessage = roomService.addRoomMessage(id, authUserID, content);
+        Optional<RoomMessage> optionalRoomMessage = roomService.addRoomMessage(id, authUserID, content);
 
-        return roomMessage.isPresent()
-                ? ResponseEntity.ok(roomMessage.get())
-                : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        if (optionalRoomMessage.isPresent()) {
+            RoomMessage roomMessage = optionalRoomMessage.get();
+            ssePushNotificationService.sendRoomMessagesUpdateNotification(roomMessage);
+
+            return ResponseEntity.ok(roomMessage);
+        }
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 
     @DeleteMapping(path = "/update/{id}/delete-message")
@@ -137,9 +146,13 @@ public class RoomController {
             @PathVariable("id") @NotNull UUID id,
             @RequestParam(name = "msg_id") @NotNull int messageId) {
         String authUserID = principal.getAttribute("email");
+        boolean messageWasDeleted = roomService.deleteRoomMessage(id, authUserID, messageId);
 
-        return roomService.deleteRoomMessage(id, authUserID, messageId)
-                ? HttpStatus.OK
-                : HttpStatus.NOT_FOUND;
+        if (messageWasDeleted) {
+            ssePushNotificationService.sendRoomMessagesDeleteNotification(id, messageId);
+            return HttpStatus.OK;
+        }
+
+        return HttpStatus.NOT_FOUND;
     }
 }

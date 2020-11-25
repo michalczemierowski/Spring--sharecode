@@ -26,6 +26,4 @@ function openNav()
 
 	document.getElementById("sidepanel").style.width = SIDEPANEL_WIDTH_PX + "px";
 	document.getElementById("content").style.right = (SIDEPANEL_WIDTH_PX + BUTTONS_WIDTH_PX) + "px";
-	
-    updateMessages();
 }

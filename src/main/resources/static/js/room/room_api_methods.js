@@ -9,23 +9,23 @@ function createChatMessage(id, userName, sendDateTime, content) {
 	</div>`
 }
 
-function formatDate(date)
-{
+function formatDate(date) {
 	return date.getUTCFullYear() + "/" +
-	("0" + (date.getUTCMonth() + 1)).slice(-2) + "/" +
-	("0" + date.getUTCDate()).slice(-2) + " " +
-	("0" + date.getUTCHours()).slice(-2) + ":" +
-	("0" + date.getUTCMinutes()).slice(-2) + ":" +
-	("0" + date.getUTCSeconds()).slice(-2);
+		("0" + (date.getUTCMonth() + 1)).slice(-2) + "/" +
+		("0" + date.getUTCDate()).slice(-2) + " " +
+		("0" + date.getUTCHours()).slice(-2) + ":" +
+		("0" + date.getUTCMinutes()).slice(-2) + ":" +
+		("0" + date.getUTCSeconds()).slice(-2);
 }
 
-function updateMessages() {
+function loadMessages() {
 	$.ajax({
 		url: "/api/v1/room/get/" + id + "/messages",
 		type: 'GET',
 		success: function (result) {
-			//let jsonData = JSON.parse(result);
-			//console.log(jsonData);
+			if (!result)
+				return;
+
 			console.log(result);
 
 			let html = "";
@@ -57,7 +57,6 @@ function sendMessage() {
 
 			let html = $("#msg-div").html();
 			html += createChatMessage(result.id, result.user.name, dateStr, result.content);
-
 			$("#msg-div").html(html);
 		}
 	});
@@ -70,7 +69,6 @@ function deleteMessage(msg_id) {
 		type: 'DELETE',
 		data: { msg_id: msg_id },
 		success: function (result) {
-			console.log(typeof (msg_id));
 			if (result == "OK") {
 				$("#msg_" + msg_id).remove();
 			}
@@ -84,7 +82,7 @@ function saveContent() {
 	let path = "/api/v1/room/update/" + id + "/set-content";
 	$.post(path, { content: editor.getValue() },
 		function (data) {
-			console.log(data);
+			console.log("save room content: " + data);
 		});
 }
 
@@ -134,4 +132,61 @@ function removeAccess() {
 			}
 		}
 	});
+}
+
+function listenForUpdates() {
+	console.log("/notifications/room/" + id + "/" + email);
+	const eventSource = new EventSource("/notifications/room/" + id + "/" + email);
+
+	// on update message received
+	eventSource.onmessage = e => {
+		if (e) {
+			let eventJSON = JSON.parse(e.data);
+			console.log(eventJSON);
+			switch (eventJSON.type) {
+				case "content_update":
+					if (isOwner)
+						break;
+
+					let cursorPos = editor.getCursorPosition();
+					let newContent = eventJSON.content;
+
+					editor.setReadOnly(false);
+					editor.setValue(newContent);
+					editor.setReadOnly(true);
+					editor.clearSelection();
+					editor.moveCursorToPosition(cursorPos);
+					break;
+				case "add_message":
+					if (eventJSON.user.id != email) {
+						let sendDate = eventJSON.send_datetime instanceof Date ? eventJSON.send_datetime : new Date(eventJSON.send_datetime);
+						let dateStr = formatDate(sendDate);
+
+						let html = $("#msg-div").html();
+						html += createChatMessage(eventJSON.id, eventJSON.user.name, dateStr, eventJSON.content);
+						$("#msg-div").html(html);
+					}
+					break;
+				case "delete_message":
+					$("#msg_" + eventJSON.id).remove();
+					break;
+				case "remove_access":
+					if (eventJSON.id === email) {
+						alert("access removed");
+						location.href = "/";
+					}
+					break;
+			}
+		}
+	};
+
+	eventSource.onopen = e => console.log('open');
+	eventSource.onerror = e => {
+		if (e.readyState == EventSource.CLOSED) {
+			console.log('close');
+		}
+		else {
+			console.log(e);
+		}
+	};
 }

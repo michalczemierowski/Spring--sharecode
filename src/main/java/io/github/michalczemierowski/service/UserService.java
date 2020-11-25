@@ -39,4 +39,28 @@ public class UserService {
     {
         return userRepository.findById(userId);
     }
+
+    public Optional<String> getNameById(String userId)
+    {
+        Optional<User> optionalUser = userRepository.findById(userId);
+
+        return optionalUser.isPresent()
+                ? Optional.of(optionalUser.get().getName())
+                : Optional.empty();
+    }
+
+    public boolean setUserName(String userId, String name)
+    {
+        Optional<User> optionalUser = userRepository.findById(userId);
+        if(optionalUser.isPresent())
+        {
+            User user = optionalUser.get();
+            // TODO: name validations
+            user.setName(name);
+            userRepository.save(user);
+            return true;
+        }
+
+        return false;
+    }
 }
