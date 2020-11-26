@@ -5,12 +5,17 @@ import io.github.michalczemierowski.model.RoomMessage;
 import io.github.michalczemierowski.service.RoomService;
 import io.github.michalczemierowski.service.SsePushNotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import javax.validation.Valid;
+import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
@@ -19,6 +24,7 @@ import java.util.UUID;
 
 @RequestMapping("api/v1/room")
 @RestController
+@Validated
 public class RoomController {
     @Autowired
     private RoomService roomService;
@@ -62,9 +68,10 @@ public class RoomController {
 
     @PostMapping(path = "/create")
     public ResponseEntity<Room> createRoom(@AuthenticationPrincipal OAuth2User principal,
-                                           @RequestParam(name = "room_name") @NotNull String roomName) {
+                                           @RequestParam(name = "room_name") @Size(min = 5, max = 100) String roomName,
+                                           @RequestParam(name = "language", required = false) @Size(min = 1, max = 32) String language) {
         String authUserID = principal.getAttribute("email");
-        Optional<Room> optionalRoom = roomService.createRoom(authUserID, roomName);
+        Optional<Room> optionalRoom = roomService.createRoom(authUserID, roomName, language);
 
         return ResponseEntity.of(optionalRoom);
     }
@@ -154,5 +161,10 @@ public class RoomController {
         }
 
         return HttpStatus.NOT_FOUND;
+    }
+
+    @ExceptionHandler({ValidationException.class})
+    public ResponseEntity<String> handleValidationExceptions(Exception exception, WebRequest request) {
+        return new ResponseEntity<String>(exception.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 }

@@ -2,8 +2,10 @@ package io.github.michalczemierowski.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.annotations.Type;
+import org.springframework.boot.context.properties.bind.DefaultValue;
 
 import javax.persistence.*;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,11 +22,12 @@ public class Room {
     @Column(length = 36, unique = true, nullable = false)
     private UUID id;
 
+    @Size(min = 5, max = 100)
     @Column(nullable = false, length = 100)
     private String name;
 
     @Column(name = "date_of_last_use", nullable = false)
-    public LocalDateTime dateOfLastUse;
+    private LocalDateTime dateOfLastUse;
 
     @ManyToOne
     @JoinColumn(name = "owner_id", referencedColumnName = "id", nullable = false)
@@ -39,6 +42,10 @@ public class Room {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Size(min = 1, max = 32)
+    @Column(length = 32)
+    private String language = "Plain Text";
+
     @JsonManagedReference
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RoomMessage> messages;
@@ -48,12 +55,15 @@ public class Room {
     public Room() {
     }
 
-    public Room(UUID id, String name, User ownerUser, User... usersWithAccess) {
+    public Room(UUID id, String name, String language, User ownerUser, User... usersWithAccess) {
         this.id = id;
         this.name = name;
         this.ownerUser = ownerUser;
-
         this.dateOfLastUse = LocalDateTime.now();
+        if(language != null && !language.isEmpty())
+            this.language = language;
+
+        this.ownerUser.getOwnedRooms().add(this);
 
         this.usersWithAccess = Stream.of(usersWithAccess).collect(Collectors.toList());
         this.usersWithAccess.forEach(x -> x.getAvailableRooms().add(this));
@@ -112,6 +122,20 @@ public class Room {
         return content;
     }
 
+    /**
+     * Get programming language used in room
+     *
+     * @return room language
+     */
+    public String getLanguage() {
+        return language;
+    }
+
+    /**
+     * Get list of room messages
+     *
+     * @return list of room messages
+     */
     public List<RoomMessage> getMessages() {
         return messages;
     }
@@ -142,6 +166,10 @@ public class Room {
      */
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setDateOfLastUse(LocalDateTime dateOfLastUse) {
+        this.dateOfLastUse = dateOfLastUse;
     }
 
     /**
@@ -183,8 +211,22 @@ public class Room {
         this.content = content;
     }
 
+    /**
+     * Set room language
+     * @param language new language
+     */
+    public void setLanguage(String language) {
+        this.language = language;
+    }
+
+    /**
+     * Add new message
+     *
+     * @param message message you want to add
+     * @return true if message was added
+     */
     public boolean addMessage(RoomMessage message) {
-        if(messages == null)
+        if (messages == null)
             messages = new ArrayList<>();
 
         if (messages.contains(message))
@@ -194,6 +236,11 @@ public class Room {
         return true;
     }
 
+    /**
+     * Remove message
+     *
+     * @param message message you want to remove
+     */
     public void removeMessage(RoomMessage message) {
         if (message == null)
             return;
@@ -208,17 +255,35 @@ public class Room {
     /**
      * Check if user can view room
      *
-     * @param authUserID user id
+     * @param userId user id
      * @return true if user can view room
      */
-    public boolean canUserViewRoom(String authUserID) {
-        // check if user is owner
-        boolean isOwner = ownerUser.getId().equals(authUserID);
-        if (isOwner)
+    public boolean canBeViewedBy(String userId) {
+        if (isOwnedBy(userId))
             return true;
 
-        // check if user has access
-        return usersWithAccess.stream().anyMatch(user -> user.getId().equals(authUserID));
+        return isAvailableFor(userId);
+    }
+
+    /**
+     * Check if room is owned by user
+     *
+     * @param userId user id
+     * @return true if user is owner
+     */
+    public boolean isOwnedBy(String userId) {
+        return ownerUser.getId().equals(userId);
+    }
+
+    /**
+     * Check if user is in users with access list
+     * (don't checks if user is owner)
+     *
+     * @param userId user id
+     * @return true if user is in list
+     */
+    public boolean isAvailableFor(String userId) {
+        return usersWithAccess.stream().anyMatch(user -> user.getId().equals(userId));
     }
 
     // endregion

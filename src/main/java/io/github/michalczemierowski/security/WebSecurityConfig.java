@@ -47,12 +47,11 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                         .successHandler((request, response, exception) ->
                         {
                             boolean isNewUser = userService.addUserToDatabaseIfNotExists();
-                            if(isNewUser){
+                            if (isNewUser) {
                                 // TODO: redirect to page where user can change 'name'
-                                response.sendRedirect("/");
-                            }
-                            else
-                                response.sendRedirect("/");
+                                response.sendRedirect("/dashboard");
+                            } else
+                                response.sendRedirect("/dashboard");
                         })
                 );
     }

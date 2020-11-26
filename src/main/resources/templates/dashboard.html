@@ -1,0 +1,103 @@
+<!DOCTYPE HTML>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
+
+<head>
+  <title>DASHBOARD - [[${user_name}]]</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="/css/themes.css" />
+  <link rel="stylesheet" type="text/css" href="/css/dashboard.css" />
+</head>
+
+<body>
+  <script type="text/javascript" src="/webjars/js-cookie/js.cookie.js"></script>
+  <script>
+    $.ajaxSetup({
+      beforeSend: function (xhr, settings) {
+        if (settings.type == 'POST' || settings.type == 'PUT'
+          || settings.type == 'DELETE') {
+          if (!(/^http:.*/.test(settings.url) || /^https:.*/
+            .test(settings.url))) {
+            // Only send the token to relative URLs i.e. locally.
+            xhr.setRequestHeader("X-XSRF-TOKEN", Cookies
+              .get('XSRF-TOKEN'));
+          }
+        }
+      }
+    });
+  </script>
+  <script src="/js/global.js"></script>
+  <script src="/js/dashboard.js"></script>
+
+  <div class="rooms">
+    <div id="owned_rooms_parent" style="display: none;">
+      <h2 onclick="$('#owned_rooms').toggle()">Owned rooms:</h2>
+      <table>
+        <colgroup>
+          <col span="1" style="width: 55%;">
+          <col span="1" style="width: 10%;">
+          <col span="1" style="width: 15%;">
+          <col span="1" style="width: 10%;">
+          <col span="1" style="width: 10%;">
+        </colgroup>
+
+        <thead>
+          <th sty>name/id</th>
+          <th>language</th>
+          <th>date of last use</th>
+          <th>users with access</th>
+          <th>actions</th>
+        </thead>
+        <tbody id="owned_rooms">
+
+        </tbody>
+      </table>
+    </div>
+
+    <div id="available_rooms_parent" style="display: none;">
+      <h2 onclick="$('#available_rooms').toggle()">Available rooms:</h2>
+      <table>
+        <colgroup>
+          <col span="1" style="width: 40%;">
+          <col span="1" style="width: 15%;">
+          <col span="1" style="width: 10%;">
+          <col span="1" style="width: 15%;">
+          <col span="1" style="width: 10%;">
+          <col span="1" style="width: 10%;">
+        </colgroup>
+
+        <thead>
+          <th>name/id</th>
+          <th>owner</th>
+          <th>language</th>
+          <th>date of last use</th>
+          <th>users with access</th>
+          <th>actions</th>
+        </thead>
+        <tbody id="available_rooms">
+
+        </tbody>
+      </table>
+      <button onclick="getAvailableRooms()">REFRESH</button>
+    </div>
+  </div>
+
+  <div class="sidebar">
+    <div class="content">
+      <div class="wide r">
+        [[${user_id}]] <button onclick="logout()">🔴</button>
+      </div>
+      <hr>
+      <div class="wide">
+        <h3 class="c">CREATE ROOM</h3>
+        <p>name: <input type="text" id="room_name_input"></p>
+        <p><button onclick="createRoom()">CREATE</button></p>
+      </div>
+      <hr>
+    </div>
+    <!-- <button class="theme" onclick="toggleTheme()">⬜</button> -->
+  </div>
+</body>
+
+</html>

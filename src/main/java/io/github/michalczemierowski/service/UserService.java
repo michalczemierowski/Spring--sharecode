@@ -17,15 +17,15 @@ public class UserService {
     private UserRepository userRepository;
 
     /**
+     * [ READS USER DATA FROM AUTH INFO ]
      * @return true if user was added
      */
-    public boolean addUserToDatabaseIfNotExists()
-    {
+    public boolean addUserToDatabaseIfNotExists() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        OAuth2User principal = (OAuth2User)auth.getPrincipal();
+        OAuth2User principal = (OAuth2User) auth.getPrincipal();
 
         String authUserID = principal.getAttribute("email");
-        if(userRepository.existsUserById(authUserID))
+        if (userRepository.existsUserById(authUserID))
             return false;
 
         String name = principal.getAttribute("name");
@@ -35,13 +35,11 @@ public class UserService {
         return true;
     }
 
-    public Optional<User> getUserById(String userId)
-    {
+    public Optional<User> getUserById(String userId) {
         return userRepository.findById(userId);
     }
 
-    public Optional<String> getNameById(String userId)
-    {
+    public Optional<String> getNameById(String userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
 
         return optionalUser.isPresent()
@@ -49,11 +47,9 @@ public class UserService {
                 : Optional.empty();
     }
 
-    public boolean setUserName(String userId, String name)
-    {
+    public boolean setUserName(String userId, String name) {
         Optional<User> optionalUser = userRepository.findById(userId);
-        if(optionalUser.isPresent())
-        {
+        if (optionalUser.isPresent()) {
             User user = optionalUser.get();
             // TODO: name validations
             user.setName(name);

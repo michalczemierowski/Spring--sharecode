@@ -8,6 +8,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -18,8 +19,8 @@ public class User {
     private String id;
 
     @NotBlank
-    @Size(min = 5, max = 30)
-    @Column(length = 30)
+    @Size(min = 5, max = 32)
+    @Column(length = 32)
     private String name;
 
     @JsonBackReference
@@ -54,15 +55,18 @@ public class User {
         return id;
     }
 
+    /**
+     * @return user name
+     */
     public String getName() {
         return name;
     }
 
     /**
-     * @return List of owned rooms
+     * @return list of owned rooms
      */
     public List<Room> getOwnedRooms() {
-        if(ownedRooms == null)
+        if (ownedRooms == null)
             ownedRooms = new ArrayList<>();
 
         return ownedRooms;
@@ -88,10 +92,45 @@ public class User {
 
     /**
      * Update owned rooms
+     *
      * @param ownedRooms new owned rooms list
      */
-    public void setOwnedRooms(List<Room> ownedRooms)
-    {
+    public void setOwnedRooms(List<Room> ownedRooms) {
         this.ownedRooms = ownedRooms;
     }
+
+    // region Utils
+
+    /**
+     * Check if room can be viewed by user
+     * @param roomId room id
+     * @return true if user can view room
+     */
+    public boolean canView(UUID roomId) {
+        if (isOwnerOf(roomId))
+            return true;
+
+        return hasAccessTo(roomId);
+    }
+
+    /**
+     * Check if room is in available rooms list
+     * (don't checks if room is on owned rooms list)
+     * @param roomId room id
+     * @return true if room is in list
+     */
+    public boolean hasAccessTo(UUID roomId) {
+        return availableRooms.stream().anyMatch(room -> room.getId().equals(roomId));
+    }
+
+    /**
+     * Check if user is owner of room
+     * @param roomId room id
+     * @return true if user is owner
+     */
+    public boolean isOwnerOf(UUID roomId) {
+        return ownedRooms.stream().anyMatch(room -> room.getId().equals(roomId));
+    }
+
+    // endregion
 }

@@ -21,12 +21,11 @@ public class RemoveUnusedRoomsTask {
     {
         int daysToDeleteRoom = 14;
 
-        LocalDateTime currentDate = LocalDateTime.now();
         LocalDateTime minDate = LocalDateTime.now().minusDays(daysToDeleteRoom);
 
         List<Room> allRooms = roomRepository.findAll();
         allRooms.stream()
-                .filter(room -> room.dateOfLastUse.isBefore(minDate))
+                .filter(room -> room.getDateOfLastUse().isBefore(minDate))
                 .forEach(room -> {
                     roomRepository.deleteById(room.getId());
                 });

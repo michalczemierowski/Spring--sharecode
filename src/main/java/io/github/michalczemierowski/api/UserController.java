@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.Size;
@@ -15,6 +16,7 @@ import java.util.Optional;
 
 @RequestMapping("api/v1/user")
 @RestController
+@Validated
 public class UserController {
     @Autowired
     private UserService userService;
@@ -62,7 +64,7 @@ public class UserController {
 
     @PostMapping("/set-name")
     public HttpStatus setName(@AuthenticationPrincipal OAuth2User principal,
-                              @RequestParam(name = "name") @Size(min = 5, max = 30) String name) {
+                              @RequestParam(name = "name") @Size(min = 5, max = 32) String name) {
         String authUserID = principal.getAttribute("email");
 
         return userService.setUserName(authUserID, name)

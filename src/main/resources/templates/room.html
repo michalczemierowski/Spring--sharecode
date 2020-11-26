@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org">
 
 <head>
-  <title>TEST - [[${name}]]</title>
+  <title>TEST - [[${room_name}]]</title>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
   <link rel="stylesheet" type="text/css" href="/webjars/bootstrap/css/bootstrap.min.css" />
   <link rel="stylesheet" type="text/css" href="/css/room-sidebar.css" />
@@ -10,10 +10,11 @@
   <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
 
   <script>
-    var id = "[[${id}]]";
-    var name = "[[${name}]]";
-    var isOwner = [[${ isOwner }]];
-    var email = "[[${email}]]";
+    // TODO: rename variables
+    var id = "[[${room_id}]]";
+    var name = "[[${room_name}]]";
+    var email = "[[${user_id}]]";
+    var isOwner = [[${ is_owner }]];
   </script>
 </head>
 
@@ -34,7 +35,8 @@
       }
     });
   </script>
-
+  <script src="/js/global.js"></script>
+  
   <div class="sp-buttons">
     <button id="home_button" class="sp-button" style="top: 3px; position: fixed;"
       onclick="location.href = '/'">home</button>
@@ -99,8 +101,7 @@
         var roomJSON = eval(data);
         $("#name").html(roomJSON.name);
 
-        if(roomJSON.content)
-        {
+        if (roomJSON.content) {
           editor.setReadOnly(false);
           editor.setValue(roomJSON.content);
           editor.setReadOnly(true);

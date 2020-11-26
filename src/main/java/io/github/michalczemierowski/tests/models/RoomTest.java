@@ -2,8 +2,10 @@ package io.github.michalczemierowski.tests.models;
 
 import io.github.michalczemierowski.model.Room;
 import io.github.michalczemierowski.model.User;
+import org.apache.tomcat.jni.Local;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.junit.Assert.*;
@@ -13,67 +15,65 @@ public class RoomTest {
 
     @Test
     public void createRoom() {
-        User testUser1 = new User("user1@test.com", "testUser1");
-        User testUser2 = new User("user2@test.com", "testUser2");
+        User testOwner = new User("test@owner.com", "test");
+        User testUser = new User("test@user.com", "test");
 
-        Room room = new Room(testUUID, "testRoom", testUser1, testUser2);
+        Room room = new Room(testUUID, "testRoom", null, testOwner, testUser);
 
-        // check if user roomAccess contains room
-        assertFalse(testUser1.getAvailableRooms().contains(room));
-        assertTrue(testUser2.getAvailableRooms().contains(room));
+        // assert that user room access list contains room
+        assertFalse(testOwner.getAvailableRooms().contains(room));
+        assertTrue(testUser.getAvailableRooms().contains(room));
 
-        // check if owner is correct
-        assertEquals(room.getOwnerUser(), testUser1);
+        // assert that owner is correct
+        assertEquals(room.getOwnerUser(), testOwner);
 
-        // check if room access contains users (owner shouldn't be in roomAccess set)
-        assertTrue(room.getUsersWithAccess().contains(testUser2));
-        assertFalse(room.getUsersWithAccess().contains(testUser1));
+        // assert that room access list contains users (owner shouldn't be in roomAccess set)
+        assertTrue(room.getUsersWithAccess().contains(testUser));
+        assertFalse(room.getUsersWithAccess().contains(testOwner));
     }
 
     @Test
-    public void addAccessToUser()
-    {
-        User testUser1 = new User("user1@test.com", "testUser1");
-        User testUser2 = new User("user2@test.com", "testUser2");
-        Room room = new Room(testUUID, "testRoom", testUser1);
+    public void addAccessToUser() {
+        User testOwner = new User("test@owner.com", "test");
+        User testUser = new User("test@user.com", "test");
+        Room room = new Room(testUUID, "testRoom", null, testOwner);
 
-        // adding owner to room
-        assertFalse(room.addUser(testUser1));
+        // adding access to owner shouldn't be possible
+        assertFalse(room.addUser(testOwner));
 
         // adding new user to room
-        assertTrue(room.addUser(testUser2));
-        assertTrue(room.getUsersWithAccess().contains(testUser2));
-        assertTrue(testUser2.getAvailableRooms().contains(room));
+        assertTrue(room.addUser(testUser));
+        assertTrue(room.getUsersWithAccess().contains(testUser));
+        assertTrue(testUser.getAvailableRooms().contains(room));
     }
 
     @Test
-    public void changeRoomOwner()
-    {
-        User testUser1 = new User("user1@test.com", "testUser1");
-        User testUser2 = new User("user2@test.com", "testUser2");
-        Room room = new Room(testUUID, "testRoom", testUser1, testUser2);
+    public void changeRoomOwner() {
+        User testOwner = new User("test@owner.com", "test");
+        User testUser = new User("test@user.com", "test");
+        Room room = new Room(testUUID, "testRoom", null, testOwner, testUser);
 
         // room access shouldn't contain owner
-        assertFalse(room.getUsersWithAccess().contains(testUser1));
-        assertTrue(room.getUsersWithAccess().contains(testUser2));
+        assertFalse(room.getUsersWithAccess().contains(testOwner));
+        assertTrue(room.getUsersWithAccess().contains(testUser));
 
         // update owner
-        room.setOwnerUser(testUser2);
+        room.setOwnerUser(testUser);
 
         // check if owner is updated
-        assertEquals(room.getOwnerUser(), testUser2);
+        assertEquals(room.getOwnerUser(), testUser);
         // room access shouldn't contain owner
-        assertFalse(room.getUsersWithAccess().contains(testUser2));
-        assertTrue(room.getUsersWithAccess().contains(testUser1));
+        assertFalse(room.getUsersWithAccess().contains(testUser));
+        assertTrue(room.getUsersWithAccess().contains(testOwner));
     }
 
     @Test
-    public void updateRoomName() {
-        User testUser1 = new User("user1@test.com", "testUser1");
+    public void setName() {
+        User testOwner = new User("test@owner.com", "test");
 
         String defaultName = "testRoom";
         String newName = "newName";
-        Room room = new Room(testUUID, defaultName, testUser1);
+        Room room = new Room(testUUID, defaultName, null, testOwner);
 
         // check if initial name is correct
         assertEquals(room.getName(), defaultName);
@@ -85,4 +85,21 @@ public class RoomTest {
         assertEquals(room.getName(), newName);
     }
 
+    @Test
+    public void canUserViewRoom() {
+        User testOwner = new User("test@owner.com", "test");
+        User testUser = new User("test@user.com", "test");
+        Room room = new Room(testUUID, "testRoom", null, testOwner);
+
+        // assert that owner can view room
+        assertTrue(room.canBeViewedBy(testOwner.getId()));
+        // testUser shouldn't be able to view room yet
+        assertFalse(room.canBeViewedBy(testUser.getId()));
+
+        // add access to testUser
+        room.addUser(testUser);
+
+        // now testUser should be able to view room
+        assertTrue(room.canBeViewedBy(testUser.getId()));
+    }
 }

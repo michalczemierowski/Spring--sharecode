@@ -1,0 +1,92 @@
+body {
+  background-color: var(--color-secondary);
+  color: var(--font-color);
+}
+
+.rooms {
+  padding: 8px;
+  width: 65%;
+}
+
+.rooms a {
+  font-size: 21px;
+  text-decoration: none;
+  color: var(--font-color);
+  transition: all 0.15s;
+}
+
+.rooms a:hover {
+  text-shadow: 2px 2px 4px var(--color-primary);
+}
+
+.rooms table {
+  text-align: center;
+  width: 100%;
+  border: 1px solid var(--color-primary);
+}
+
+.rooms table th {
+  border: 3px solid var(--color-primary);
+}
+
+.rooms table td {
+  height: 32px;
+  border: 1px solid var(--color-primary);
+  padding: 2px;
+}
+
+.actions button {
+  width: 20px;
+  height: 20px;
+  font-size: large;
+  background-color: rgba(0, 0, 0, 0);
+  border: none;
+  padding: 0;
+  transition: all 0.2s;
+}
+
+.actions button:hover {
+  scale: 1.2;
+}
+
+.sidebar {
+  height: 100%;
+  width: 30%;
+  position: fixed;
+  right: 0;
+  top: 0;
+  background-color: var(--color-tertiary);
+}
+
+.sidebar .content {
+  margin: 2%;
+  width: 96%;
+  height: 96%;
+}
+
+.sidebar .content * {
+  padding: 2px;
+  margin: 2px;
+}
+
+.sidebar .content hr {
+  padding: 0;
+  margin: 10px 0 10px 0px;
+  border: 1px solid var(--color-primary);
+}
+
+.sidebar .content .wide {
+  width: 100%;
+}
+
+.l {
+  text-align: left;
+}
+
+.r {
+  text-align: right;
+}
+
+.c {
+  text-align: center;
+}
