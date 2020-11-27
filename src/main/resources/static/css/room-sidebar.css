@@ -1,28 +1,20 @@
-/* The side navigation menu */
+body {
+  overflow: hidden;
+}
 
 .sidepanel {
   white-space: nowrap;
   height: 100%;
-  /* 100% Full-height */
   width: 0px;
-  /* 0 width - change this with JavaScript */
   position: fixed;
-  /* Stay in place */
   z-index: 2;
-  /* Stay on top */
   top: 0;
-  /* Stay at the top */
   right: 0;
-  background-color: #111;
-  /* Black*/
+  background-color: var(--color-tertiary);
   overflow-x: hidden;
-  /* Disable horizontal scroll */
-  padding-top: 8px;
-  /* Place content 60px from the top */
   transition: 0.5s;
-  /* 0.5 second transition effect to slide in the sidepanel */
   margin-right: 72px;
-  border-right: 2px solid #065299;
+  border-right: 2px solid var(--color-primary);
 }
 
 .sp-buttons {
@@ -36,12 +28,14 @@
   bottom: 0px;
   right: 0px;
   z-index: 3;
+  background-color: var(--color-tertiary);
 }
 
 .msg-div {
   width: 318px;
   height: 100%;
   overflow-y: auto;
+  border-left: 2px solid var(--color-primary);
   /* bottom: 60px; */
 }
 
@@ -49,19 +43,17 @@
   position: absolute;
   display: flex;
   width: 318px;
-  padding-top: 6px;
-  padding-bottom: 6px;
-  background-color: #065299;
-  border-top: 1px solid #111;
+  background-color: var(--color-primary);
+  border-top: 1px solid var(--color-tertiary);
   bottom: 0;
+  padding: 6px;
 }
 
 .send-msg-btn {
   float: right;
-  width: 30px;
+  width: 50px;
   margin: 0;
   padding: 0;
-  height: 100%;
 }
 
 .send-msg-input {
@@ -73,40 +65,43 @@
   height: 64px;
   width: 64px;
   margin: 3px;
-  /* z-index: 3; */
-  /* position: fixed;
-  bottom: 3px;
-  right: 0; */
-  background-color: whitesmoke;
-  color: black;
+}
+
+button{
+  background-color: var(--color-primary);
+  border: 2px solid rgba(0, 0, 0, 0);
+  transition: all 0.2s;
+}
+
+button:hover {
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-primary);
 }
 
 .send-msg-input {
   font-size: 15px;
-  color: #818181;
 }
 
 .msg {
   position: relative;
   white-space: normal;
   padding: 8px;
-  border-bottom: 1px solid #065299;
+  border-bottom: 1px solid var(--color-primary);
   font-size: 12px;
-  color: #919191;
 }
 
-.msg .name{
+.msg .name {
   font-size: 11px;
 }
 
-.msg .content{
+.msg .content {
   font-size: 14px;
   width: 100%;
   white-space: initial;
   word-wrap: break-word;
 }
 
-.msg .date{
+.msg .date {
   font-size: 10px;
   position: absolute;
   bottom: 3px;
@@ -114,7 +109,7 @@
   margin: 0;
 }
 
-.msg button{
+.msg button {
   font-size: 16px;
 }
 
@@ -129,17 +124,12 @@
   padding: 20px;
 }
 
-body {
-  overflow: hidden;
-  background-color: #101010;
-}
-
 #content {
   margin: 0;
   position: absolute;
   border: none;
   border-radius: 0;
-  border-right: 2px solid #065299;
+  border-right: 2px solid var(--color-primary);
   top: 0;
   bottom: 0;
   left: 0;

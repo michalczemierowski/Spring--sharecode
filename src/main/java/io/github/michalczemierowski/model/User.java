@@ -18,7 +18,6 @@ public class User {
     @Column(length = 40, unique = true, nullable = false)
     private String id;
 
-    @NotBlank
     @Size(min = 5, max = 32)
     @Column(length = 32)
     private String name;

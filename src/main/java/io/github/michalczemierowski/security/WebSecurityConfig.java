@@ -20,8 +20,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 "/",
                 "/sign-in",
                 "/error",
-                "/webjars/**",
-                "/js/**"
+                "/js/**",
+                "/css/**"
         };
 
         http

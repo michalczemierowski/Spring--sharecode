@@ -3,13 +3,16 @@ package io.github.michalczemierowski.api;
 import io.github.michalczemierowski.model.User;
 import io.github.michalczemierowski.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.WebRequest;
 
+import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
 import java.util.Map;
 import java.util.Optional;
@@ -63,12 +66,17 @@ public class UserController {
     }
 
     @PostMapping("/set-name")
-    public HttpStatus setName(@AuthenticationPrincipal OAuth2User principal,
-                              @RequestParam(name = "name") @Size(min = 5, max = 32) String name) {
+    public ResponseEntity<String> setName(@AuthenticationPrincipal OAuth2User principal,
+                                          @RequestParam(name = "name") @Size(min = 5, max = 32) String name) {
         String authUserID = principal.getAttribute("email");
 
         return userService.setUserName(authUserID, name)
-                ? HttpStatus.OK
-                : HttpStatus.BAD_REQUEST;
+                ? ResponseEntity.ok(name)
+                : ResponseEntity.badRequest().build();
+    }
+
+    @ExceptionHandler({ValidationException.class})
+    public ResponseEntity<String> handleValidationExceptions(Exception exception, WebRequest request) {
+        return new ResponseEntity<String>(exception.getMessage(), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 }

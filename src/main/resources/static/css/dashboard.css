@@ -1,8 +1,3 @@
-body {
-  background-color: var(--color-secondary);
-  color: var(--font-color);
-}
-
 .rooms {
   padding: 8px;
   width: 65%;
@@ -77,6 +72,26 @@ body {
 
 .sidebar .content .wide {
   width: 100%;
+}
+
+.widebtn {
+  width: 100%;
+  background-color: var(--color-primary);
+  border: 2px solid rgba(0, 0, 0, 0);
+  transition: all 0.2s;
+}
+
+.widebtn:hover {
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-primary);
+}
+
+#user_name{
+  font-size: large;
+}
+
+#user_id{
+  font-size: small;
 }
 
 .l {

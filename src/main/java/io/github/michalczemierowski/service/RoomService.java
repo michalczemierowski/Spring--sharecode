@@ -6,6 +6,7 @@ import io.github.michalczemierowski.model.User;
 import io.github.michalczemierowski.repository.RoomMessagesRepository;
 import io.github.michalczemierowski.repository.RoomRepository;
 import io.github.michalczemierowski.repository.UserRepository;
+import io.github.michalczemierowski.util.AceEditorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -69,6 +70,7 @@ public class RoomService {
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
+            language = AceEditorUtils.isShortcutCorrect(language) ? language : AceEditorUtils.DEFAULT_LANG;
             Room newRoom = new Room(UUID.randomUUID(), roomName, language, optionalUser.get());
 
             Room savedRoom = roomRepository.save(newRoom);
@@ -112,6 +114,26 @@ public class RoomService {
         }
 
         return Optional.empty();
+    }
+
+    public boolean updateRoomLanguage(UUID roomId, String userId, String language)
+    {
+        Optional<Room> optionalRoom = roomRepository.findById(roomId);
+
+        if (optionalRoom.isPresent()) {
+            Room room = optionalRoom.get();
+
+            // if user is owner
+            if (room.isOwnedBy(userId)) {
+                language = AceEditorUtils.isShortcutCorrect(language) ? language : AceEditorUtils.DEFAULT_LANG;
+                room.setLanguage(language);
+                roomRepository.save(room);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public boolean addRoomAccessForUser(UUID roomId, String userId, String targetUserId) {

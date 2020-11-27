@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+
 .theme-light {
   --color-primary: #0060df;
   --color-secondary: #fbfbfe;
@@ -7,9 +9,15 @@
 }
 
 .theme-dark {
-  --color-primary: #17ed90;
+  --color-primary: #0060df;
   --color-secondary: #222;
   --color-tertiary: #111;
   --color-accent: #12cdea;
   --font-color: #ccc;
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  background-color: var(--color-secondary);
+  color: var(--font-color);
 }

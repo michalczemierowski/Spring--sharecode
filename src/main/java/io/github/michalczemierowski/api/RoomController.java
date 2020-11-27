@@ -4,6 +4,7 @@ import io.github.michalczemierowski.model.Room;
 import io.github.michalczemierowski.model.RoomMessage;
 import io.github.michalczemierowski.service.RoomService;
 import io.github.michalczemierowski.service.SsePushNotificationService;
+import io.github.michalczemierowski.util.AceEditorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -126,7 +127,18 @@ public class RoomController {
             return HttpStatus.OK;
         }
 
-        return HttpStatus.NOT_FOUND;
+        return HttpStatus.BAD_REQUEST;
+    }
+
+    @PostMapping(path = "/update/{id}/set-language")
+    public HttpStatus updateRoomLanguage(@AuthenticationPrincipal OAuth2User principal,
+                                        @PathVariable("id") UUID id,
+                                        @RequestParam(name = "language") @Size(min = 1, max = 32) String language) {
+        String authUserID = principal.getAttribute("email");
+
+        return roomService.updateRoomLanguage(id, authUserID, language)
+                ? HttpStatus.OK
+                : HttpStatus.BAD_REQUEST;
     }
 
     @PostMapping(path = "/update/{id}/add-message")
