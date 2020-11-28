@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class AceEditorUtils {
+public class ValidationUtils {
     public static HashMap<String, String> languageShortcutNameMap;
     static {
         languageShortcutNameMap = new HashMap<>();
@@ -49,13 +49,19 @@ public class AceEditorUtils {
         languageShortcutNameMap.put("yaml", "YAML");
     }
 
-    public static String DEFAULT_LANG = "plain_text";
+    public static String DEFAULT_LANGUAGE = "plain_text";
 
-    public static boolean isShortcutCorrect(String shortcut)
+    public static boolean isLanguageShortcutCorrect(String shortcut)
     {
         if(shortcut == null || shortcut.isEmpty())
             return false;
 
         return languageShortcutNameMap.containsKey(shortcut);
+    }
+
+    public static boolean isNameCorrect(String name)
+    {
+        // TODO
+        return true;
     }
 }

@@ -4,7 +4,7 @@ function createRoomTableRow(room, isOwned) {
 
     return `
     <tr id="${room.id}">
-        <td class="l"><a href=/room/${room.id}>${room.name}</a></td>
+        <td class="l"><a href="/room/${room.id}">${room.name}</a></td>
         ${ownerColumn}
         <td>${langShortcutToName(room.language)}</td>
         <td>${dateStr}</td>
@@ -98,6 +98,9 @@ function getRoomActions(id, isOwned) {
     let result = "";
     if (isOwned) {
         result += `<button onclick="deleteRoom('${id}')">🟥</button>`;
+        result += `<button onclick="changeRoomName('${id}')">🟦</button>`;
+        result += `<button onclick="addAccess('${id}')">🟢</button>`;
+        result += `<button onclick="removeAccess('${id}')">🔴</button>`;
         // TODO: show users action
         // TODO: change owner action
     }
@@ -108,6 +111,9 @@ function getRoomActions(id, isOwned) {
 }
 
 function deleteRoom(id) {
+    if (!confirm("Are you sure you want to delete this room?"))
+        return;
+
     $.ajax({
         url: "/api/v1/room/delete/" + id,
         type: "DELETE",
@@ -121,6 +127,73 @@ function deleteRoom(id) {
             }
         }
     });
+}
+
+function changeRoomName(id) {
+    let name = prompt("Enter new room name");
+    if (!name)
+        return;
+
+    $.ajax({
+        url: "/api/v1/room/update/" + id + "/set-name",
+        type: "POST",
+        data: {
+            name: name,
+        },
+        success: function (response) {
+            console.log(response);
+            alert("room renamed successfully");
+
+            var nameElement = $(`a[href="/room/${id}"]`);
+            nameElement.html(response);
+        },
+        error: function (jqXHR, status, error) {
+            alert(jqXHR.responseText);
+            console.log(jqXHR);
+        }
+    });
+}
+
+function addAccess(id) {
+    let user = prompt("Enter user you want add access to");
+    if (!user)
+        return;
+
+	$.ajax({
+		url: "/api/v1/room/update/" + id + "/add-access",
+		type: 'POST',
+		data: { target_user_id: user },
+		success: function (result) {
+			if (result == "OK") {
+                alert("access added");
+                // TODO: update access list
+			}
+			else if(result == "NOT_FOUND"){
+				alert("unable to find user " + user);
+			}
+		}
+	});
+}
+
+function removeAccess(id) {
+    let user = prompt("Enter user you want remove access from");
+    if (!user)
+        return;
+
+	$.ajax({
+		url: "/api/v1/room/update/" + id + "/remove-access",
+		type: 'POST',
+		data: { target_user_id: user },
+		success: function (result) {
+			if (result == "OK") {
+                alert("access removed");
+                // TODO: update access list
+			}
+			else if(result == "NOT_FOUND"){
+				alert("user " + user + " isn't on users with access list");
+			}
+		}
+	});
 }
 
 function getOwnedRooms() {
@@ -183,13 +256,16 @@ function logout() {
 }
 
 function createRoom() {
+    let name = $("#room_name_input").val();
+    let language = $("#language_input").val();
     // TODO: client side validations
+
     $.ajax({
         url: "/api/v1/room/create",
         type: "POST",
         data: {
-            room_name: $("#room_name_input").val(),
-            language: $("#language_input").val()
+            name: name,
+            language: language
         },
         success: function (response) {
             console.log(response);
@@ -208,7 +284,8 @@ function createRoom() {
 }
 
 function changeUserName() {
-    let userNameId = "user_name"
+    let userNameId = "user_name";
+    let currentName = $("#"+userNameId).html();
     let userNameInputVal = $("#user_name_input").val();
 
     $.ajax({
@@ -218,7 +295,11 @@ function changeUserName() {
         success: function (response) {
             console.log(response);
             alert("user name changed successfully to " + response);
+
+            // update username text
             $("#" + userNameId).html(response);
+            // update page title
+            document.title = document.title.replace(currentName, response);
         },
         error: function (jqXHR, status, error) {
             alert(jqXHR.responseText);
@@ -226,6 +307,16 @@ function changeUserName() {
         }
     });
 }
+
+$(function () {
+    $(".tg").on('click', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+        
+        $(this).parent().toggleClass("toggle");
+    });
+});
 
 getAvailableRooms();
 getOwnedRooms();

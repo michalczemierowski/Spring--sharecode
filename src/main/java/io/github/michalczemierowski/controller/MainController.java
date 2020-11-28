@@ -3,7 +3,6 @@ package io.github.michalczemierowski.controller;
 import io.github.michalczemierowski.model.Room;
 import io.github.michalczemierowski.service.RoomService;
 import io.github.michalczemierowski.service.UserService;
-import io.github.michalczemierowski.util.AceEditorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

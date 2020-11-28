@@ -72,6 +72,24 @@
 
 .sidebar .content .wide {
   width: 100%;
+  background-color: var(--color-secondary);
+  border: 1px solid var(--color-primary);
+  padding: 5px;
+  transition: all 0.2s;
+}
+
+.wide h3 {
+  text-align: center;
+  background-color: var(--color-secondary);
+}
+
+.toggle h3{
+  background-color: var(--color-primary);
+}
+
+.toggle {
+  overflow: hidden;
+  height: 30px;
 }
 
 .widebtn {
@@ -86,11 +104,11 @@
   border: 2px solid var(--color-primary);
 }
 
-#user_name{
+#user_name {
   font-size: large;
 }
 
-#user_id{
+#user_id {
   font-size: small;
 }
 

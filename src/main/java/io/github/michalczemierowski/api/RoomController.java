@@ -4,7 +4,6 @@ import io.github.michalczemierowski.model.Room;
 import io.github.michalczemierowski.model.RoomMessage;
 import io.github.michalczemierowski.service.RoomService;
 import io.github.michalczemierowski.service.SsePushNotificationService;
-import io.github.michalczemierowski.util.AceEditorUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -15,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
 
-import javax.validation.Valid;
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
@@ -69,10 +67,10 @@ public class RoomController {
 
     @PostMapping(path = "/create")
     public ResponseEntity<Room> createRoom(@AuthenticationPrincipal OAuth2User principal,
-                                           @RequestParam(name = "room_name") @Size(min = 5, max = 100) String roomName,
+                                           @RequestParam(name = "name") @Size(min = 5, max = 100) String name,
                                            @RequestParam(name = "language", required = false) @Size(min = 1, max = 32) String language) {
         String authUserID = principal.getAttribute("email");
-        Optional<Room> optionalRoom = roomService.createRoom(authUserID, roomName, language);
+        Optional<Room> optionalRoom = roomService.createRoom(authUserID, name, language);
 
         return ResponseEntity.of(optionalRoom);
     }
@@ -131,14 +129,27 @@ public class RoomController {
     }
 
     @PostMapping(path = "/update/{id}/set-language")
-    public HttpStatus updateRoomLanguage(@AuthenticationPrincipal OAuth2User principal,
+    public ResponseEntity<String> updateRoomLanguage(@AuthenticationPrincipal OAuth2User principal,
                                         @PathVariable("id") UUID id,
                                         @RequestParam(name = "language") @Size(min = 1, max = 32) String language) {
         String authUserID = principal.getAttribute("email");
 
-        return roomService.updateRoomLanguage(id, authUserID, language)
-                ? HttpStatus.OK
-                : HttpStatus.BAD_REQUEST;
+        Optional<Room> optionalRoom = roomService.updateRoomLanguage(id, authUserID, language);
+        return optionalRoom.isPresent()
+                ? ResponseEntity.ok(optionalRoom.get().getLanguage())
+                : ResponseEntity.badRequest().build();
+    }
+
+    @PostMapping(path = "/update/{id}/set-name")
+    public ResponseEntity<String> updateRoomName(@AuthenticationPrincipal OAuth2User principal,
+                                         @PathVariable("id") UUID id,
+                                         @RequestParam(name = "name") @Size(min = 5, max = 100) String name) {
+        String authUserID = principal.getAttribute("email");
+
+        Optional<Room> optionalRoom =  roomService.updateRoomName(id, authUserID, name);
+        return optionalRoom.isPresent()
+                ? ResponseEntity.ok(optionalRoom.get().getName())
+                : ResponseEntity.badRequest().build();
     }
 
     @PostMapping(path = "/update/{id}/add-message")

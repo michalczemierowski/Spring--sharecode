@@ -6,7 +6,7 @@ import io.github.michalczemierowski.model.User;
 import io.github.michalczemierowski.repository.RoomMessagesRepository;
 import io.github.michalczemierowski.repository.RoomRepository;
 import io.github.michalczemierowski.repository.UserRepository;
-import io.github.michalczemierowski.util.AceEditorUtils;
+import io.github.michalczemierowski.util.ValidationUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -70,7 +70,7 @@ public class RoomService {
 
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
-            language = AceEditorUtils.isShortcutCorrect(language) ? language : AceEditorUtils.DEFAULT_LANG;
+            language = ValidationUtils.isLanguageShortcutCorrect(language) ? language : ValidationUtils.DEFAULT_LANGUAGE;
             Room newRoom = new Room(UUID.randomUUID(), roomName, language, optionalUser.get());
 
             Room savedRoom = roomRepository.save(newRoom);
@@ -116,7 +116,29 @@ public class RoomService {
         return Optional.empty();
     }
 
-    public boolean updateRoomLanguage(UUID roomId, String userId, String language)
+    public Optional<Room> updateRoomName(UUID roomId, String userId, String name)
+    {
+        if(!ValidationUtils.isNameCorrect(name))
+            return Optional.empty();
+
+        Optional<Room> optionalRoom = roomRepository.findById(roomId);
+
+        if (optionalRoom.isPresent()) {
+            Room room = optionalRoom.get();
+
+            // if user is owner
+            if (room.isOwnedBy(userId)) {
+                room.setName(name);
+                roomRepository.save(room);
+
+                return Optional.of(room);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    public Optional<Room> updateRoomLanguage(UUID roomId, String userId, String language)
     {
         Optional<Room> optionalRoom = roomRepository.findById(roomId);
 
@@ -125,15 +147,15 @@ public class RoomService {
 
             // if user is owner
             if (room.isOwnedBy(userId)) {
-                language = AceEditorUtils.isShortcutCorrect(language) ? language : AceEditorUtils.DEFAULT_LANG;
+                language = ValidationUtils.isLanguageShortcutCorrect(language) ? language : ValidationUtils.DEFAULT_LANGUAGE;
                 room.setLanguage(language);
                 roomRepository.save(room);
 
-                return true;
+                return Optional.of(room);
             }
         }
 
-        return false;
+        return Optional.empty();
     }
 
     public boolean addRoomAccessForUser(UUID roomId, String userId, String targetUserId) {

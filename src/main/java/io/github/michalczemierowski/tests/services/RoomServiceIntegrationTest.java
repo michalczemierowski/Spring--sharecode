@@ -4,6 +4,7 @@ import io.github.michalczemierowski.model.Room;
 import io.github.michalczemierowski.model.RoomMessage;
 import io.github.michalczemierowski.model.User;
 import io.github.michalczemierowski.service.RoomService;
+import io.github.michalczemierowski.util.ValidationUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +70,56 @@ public class RoomServiceIntegrationTest {
         // assert that owner is correct
         assertEquals(testOwner.getId(), optionalRoom.get().getOwnerUser().getId());
         assertTrue(testOwner.getOwnedRooms().contains(optionalRoom.get()));
+    }
+
+    @Test
+    public void updateRoomName()
+    {
+        String defaultName = "testRoom";
+        String newName = "updateRoomName";
+
+        User testOwner = new User("test@owner.com", "test");
+        entityManager.persist(testOwner);
+
+        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), defaultName, null);
+
+        // assert that room was created
+        assertTrue(optionalRoom.isPresent());
+        Room createdRoom = optionalRoom.get();
+
+        // assert that name is the same before change
+        assertEquals(defaultName, createdRoom.getName());
+
+        // testOwner should be able to change name
+        Optional<Room> renamedRoom = roomService.updateRoomName(createdRoom.getId(), testOwner.getId(), newName);
+        assertTrue(renamedRoom.isPresent());
+        assertEquals(newName, renamedRoom.get().getName());
+    }
+
+    @Test
+    public void updateRoomLanguage()
+    {
+        String validLanguage = "java";
+        String invalidLanguage = "invalid_language";
+
+        User testOwner = new User("test@owner.com", "test");
+        entityManager.persist(testOwner);
+
+        Optional<Room> optionalRoom = roomService.createRoom(testOwner.getId(), "testRoom", null);
+
+        // assert that room was created
+        assertTrue(optionalRoom.isPresent());
+        Room createdRoom = optionalRoom.get();
+
+        // testOwner should be able to change name
+        Optional<Room> renamedRoom = roomService.updateRoomLanguage(createdRoom.getId(), testOwner.getId(), validLanguage);
+        assertTrue(renamedRoom.isPresent());
+        assertEquals(validLanguage, renamedRoom.get().getLanguage());
+
+        renamedRoom = roomService.updateRoomLanguage(createdRoom.getId(), testOwner.getId(), invalidLanguage);
+        assertTrue(renamedRoom.isPresent());
+        // invalid language should be replaced with ValidationUtils.DEFAULT_LANGUAGE
+        assertEquals(ValidationUtils.DEFAULT_LANGUAGE, renamedRoom.get().getLanguage());
     }
 
     @Test
