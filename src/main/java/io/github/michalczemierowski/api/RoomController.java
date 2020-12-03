@@ -13,6 +13,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.validation.ValidationException;
 import javax.validation.constraints.NotNull;
@@ -70,6 +71,8 @@ public class RoomController {
                                            @RequestParam(name = "name") @Size(min = 5, max = 100) String name,
                                            @RequestParam(name = "language", required = false) @Size(min = 1, max = 32) String language) {
         String authUserID = principal.getAttribute("email");
+
+        name = HtmlUtils.htmlEscape(name);
         Optional<Room> optionalRoom = roomService.createRoom(authUserID, name, language);
 
         return ResponseEntity.of(optionalRoom);
@@ -104,6 +107,7 @@ public class RoomController {
         boolean accessWasRemoved = roomService.removeRoomAccessFromUser(id, authUserId, targetUserId);
 
         if (accessWasRemoved) {
+            // send SSE to clients
             ssePushNotificationService.sendRoomRemoveAccessNotification(id, targetUserId);
             return HttpStatus.OK;
         }
@@ -133,8 +137,8 @@ public class RoomController {
                                         @PathVariable("id") UUID id,
                                         @RequestParam(name = "language") @Size(min = 1, max = 32) String language) {
         String authUserID = principal.getAttribute("email");
-
         Optional<Room> optionalRoom = roomService.updateRoomLanguage(id, authUserID, language);
+
         return optionalRoom.isPresent()
                 ? ResponseEntity.ok(optionalRoom.get().getLanguage())
                 : ResponseEntity.badRequest().build();
@@ -146,7 +150,9 @@ public class RoomController {
                                          @RequestParam(name = "name") @Size(min = 5, max = 100) String name) {
         String authUserID = principal.getAttribute("email");
 
+        name = HtmlUtils.htmlEscape(name);
         Optional<Room> optionalRoom =  roomService.updateRoomName(id, authUserID, name);
+
         return optionalRoom.isPresent()
                 ? ResponseEntity.ok(optionalRoom.get().getName())
                 : ResponseEntity.badRequest().build();
@@ -158,6 +164,8 @@ public class RoomController {
             @PathVariable("id") @NotNull UUID id,
             @RequestParam(name = "content") @Size(min = 1, max = 1024) String content) {
         String authUserID = principal.getAttribute("email");
+
+        content = HtmlUtils.htmlEscape(content);
         Optional<RoomMessage> optionalRoomMessage = roomService.addRoomMessage(id, authUserID, content);
 
         if (optionalRoomMessage.isPresent()) {

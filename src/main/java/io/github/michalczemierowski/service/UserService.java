@@ -47,16 +47,18 @@ public class UserService {
                 : Optional.empty();
     }
 
-    public boolean setUserName(String userId, String name) {
+    public Optional<String> setUserName(String userId, String name) {
         Optional<User> optionalUser = userRepository.findById(userId);
         if (optionalUser.isPresent()) {
             User user = optionalUser.get();
+
             // TODO: name validations
+
             user.setName(name);
             userRepository.save(user);
-            return true;
+            return Optional.of(name);
         }
 
-        return false;
+        return Optional.empty();
     }
 }

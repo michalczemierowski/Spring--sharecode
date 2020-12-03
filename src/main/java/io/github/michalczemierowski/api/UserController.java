@@ -11,6 +11,7 @@ import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.util.HtmlUtils;
 
 import javax.validation.ValidationException;
 import javax.validation.constraints.Size;
@@ -70,8 +71,11 @@ public class UserController {
                                           @RequestParam(name = "name") @Size(min = 5, max = 32) String name) {
         String authUserID = principal.getAttribute("email");
 
-        return userService.setUserName(authUserID, name)
-                ? ResponseEntity.ok(name)
+        name = HtmlUtils.htmlEscape(name);
+        Optional<String> optionalName = userService.setUserName(authUserID, name);
+
+        return optionalName.isPresent()
+                ? ResponseEntity.ok(optionalName.get())
                 : ResponseEntity.badRequest().build();
     }
 

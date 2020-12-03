@@ -148,6 +148,37 @@
         <p><button class="widebtn" onclick="changeUserName()">CHANGE</button></p>
       </div>
       <hr>
+      <h1 class="c">SETTINGS</h1>
+      <hr>
+      <div class="wide toggle">
+        <h3 class="tg">COLOR THEME</h3>
+        <div>
+          <input type="color" id="input_primary_color">
+          <span>primary color</span>
+          <button style="float: right;"onclick='$("#input_primary_color").val("#0060df"); $("#input_primary_color").trigger("input");'>DEFAULT</button>
+        </div>
+        <div>
+          <input type="color" id="input_secondary_color">
+          <span>secondary color</span>
+          <button style="float: right;"onclick='$("#input_secondary_color").val("#222222"); $("#input_secondary_color").trigger("input");'>DEFAULT</button>
+        </div>
+        <div>
+          <input type="color" id="input_teritary_color">
+          <span>teritary color</span>
+          <button style="float: right;"onclick='$("#input_teritary_color").val("#111111"); $("#input_teritary_color").trigger("input");'>DEFAULT</button>
+        </div>
+        <div>
+          <input type="color" id="input_accent_color">
+          <span>accent color</span>
+          <button style="float: right;"onclick='$("#input_accent_color").val("#12cdea"); $("#input_accent_color").trigger("input");'>DEFAULT</button>
+        </div>
+        <div>
+          <input type="color" id="input_font_color">
+          <span>font color</span>
+          <button style="float: right;" onclick='$("#input_font_color").val("#cccccc"); $("#input_font_color").trigger("input");'>DEFAULT</button>
+        </div>
+      </div>
+      <hr>
     </div>
     <!-- <button class="theme" onclick="toggleTheme()">⬜</button> -->
   </div>

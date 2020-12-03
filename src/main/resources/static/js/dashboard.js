@@ -159,20 +159,20 @@ function addAccess(id) {
     if (!user)
         return;
 
-	$.ajax({
-		url: "/api/v1/room/update/" + id + "/add-access",
-		type: 'POST',
-		data: { target_user_id: user },
-		success: function (result) {
-			if (result == "OK") {
+    $.ajax({
+        url: "/api/v1/room/update/" + id + "/add-access",
+        type: 'POST',
+        data: { target_user_id: user },
+        success: function (result) {
+            if (result == "OK") {
                 alert("access added");
                 // TODO: update access list
-			}
-			else if(result == "NOT_FOUND"){
-				alert("unable to find user " + user);
-			}
-		}
-	});
+            }
+            else if (result == "NOT_FOUND") {
+                alert("unable to find user " + user);
+            }
+        }
+    });
 }
 
 function removeAccess(id) {
@@ -180,20 +180,20 @@ function removeAccess(id) {
     if (!user)
         return;
 
-	$.ajax({
-		url: "/api/v1/room/update/" + id + "/remove-access",
-		type: 'POST',
-		data: { target_user_id: user },
-		success: function (result) {
-			if (result == "OK") {
+    $.ajax({
+        url: "/api/v1/room/update/" + id + "/remove-access",
+        type: 'POST',
+        data: { target_user_id: user },
+        success: function (result) {
+            if (result == "OK") {
                 alert("access removed");
                 // TODO: update access list
-			}
-			else if(result == "NOT_FOUND"){
-				alert("user " + user + " isn't on users with access list");
-			}
-		}
-	});
+            }
+            else if (result == "NOT_FOUND") {
+                alert("user " + user + " isn't on users with access list");
+            }
+        }
+    });
 }
 
 function getOwnedRooms() {
@@ -285,7 +285,7 @@ function createRoom() {
 
 function changeUserName() {
     let userNameId = "user_name";
-    let currentName = $("#"+userNameId).html();
+    let currentName = $("#" + userNameId).html();
     let userNameInputVal = $("#user_name_input").val();
 
     $.ajax({
@@ -313,9 +313,56 @@ $(function () {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
-        
+
         $(this).parent().toggleClass("toggle");
     });
+
+    let style = document.documentElement.style;
+
+    $('#input_primary_color').on('input', function () {
+        let color = $('#input_primary_color').val();
+        style.setProperty('--color-primary', color);
+
+        document.cookie = `color-primary=${color}`;
+    });
+
+    $('#input_secondary_color').on('input', function () {
+        let color = $('#input_secondary_color').val();
+        style.setProperty('--color-secondary', color);
+
+        document.cookie = `color-secondary=${color}`;
+    });
+
+    $('#input_teritary_color').on('input', function () {
+        let color = $('#input_teritary_color').val();
+        style.setProperty('--color-teritary', color);
+
+        document.cookie = `color-teritary=${color}`;
+    });
+
+    $('#input_accent_color').on('input', function () {
+        let color = $('#input_accent_color').val();
+        style.setProperty('--color-accent', color);
+
+        document.cookie = `color-accent=${color}`;
+    });
+
+    $('#input_font_color').on('input', function () {
+        let color = $('#input_font_color').val();
+        style.setProperty('--font-color', color);
+
+        document.cookie = `color-font=${color}`;
+    });
+});
+
+$(document).ready(function () {
+    let style = document.documentElement.style;
+    
+    $('#input_primary_color').val(style.getPropertyValue("--color-primary"));
+    $('#input_secondary_color').val(style.getPropertyValue("--color-secondary"));
+    $('#input_teritary_color').val(style.getPropertyValue("--color-tertiary"));
+    $('#input_accent_color').val(style.getPropertyValue("--color-accent"));
+    $('#input_font_color').val(style.getPropertyValue("--font-color"));
 });
 
 getAvailableRooms();
